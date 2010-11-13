@@ -1,16 +1,20 @@
 <?php
 /**
- * PHPResizer
- *
- *
- * @package    PHPResizer
- * @copyright  http://phpresizer.org/
- * @author 	   niko
- * @version    1.0 beta
+ * @version $Revision$
+ * @category PhpResizer
+ * @package PhpResizer
+ * @subpackage Engine
+ * @author $Author$ $Date$
+ * @license New BSD license
+ * @copyright http://phpresizer.org/
  */
 
 require_once ('abstract.php');
 
+/**
+ *
+ *
+ */
 class imagemagic extends ImageEngine  {
 
     protected $types=array(1 => "gif", "png","jpg","bmp","tif");

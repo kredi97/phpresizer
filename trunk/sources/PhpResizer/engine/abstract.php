@@ -1,14 +1,17 @@
 <?php
 /**
- * PHPResizer
- *
- *
- * @package    PHPResizer
- * @copyright  http://phpresizer.org/
- * @author 	   niko
- * @version    1.0 beta
+ * @version $Revision$
+ * @category PhpResizer
+ * @package PhpResizer
+ * @subpackage Engine
+ * @author $Author$ $Date$
+ * @license New BSD license
+ * @copyright http://phpresizer.org/
  */
 
+/**
+ *
+ */
 abstract class ImageEngine {
 
     protected $params=null;

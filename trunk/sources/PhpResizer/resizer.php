@@ -1,21 +1,15 @@
 <?php
 /**
- * PHPResizer
- *
- *
- * @package    PHPResizer
- * @copyright  http://phpresizer.org/
- * @author 	   niko
- * @version    1.0 beta
- */
-/**
- * @author niko
- *
+ * @version $Revision$
+ * @category PhpResizer
+ * @package PhpResizer
+ * @author $Author$ $Date$
+ * @license New BSD license
+ * @copyright http://phpresizer.org/
  */
 
 /**
  *
- * @author niko
  */
 class PhpResizer_Resizer {
 

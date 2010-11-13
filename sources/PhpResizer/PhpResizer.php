@@ -10,8 +10,9 @@
 
 /**
  *
+ * @author niko
  */
-class PhpResizer_Resizer {
+class PhpResizer_PhpResizer {
 
     const ENGINE_GD2='gd2';
     const ENGINE_IMAGEMAGICK='imagemagic';

@@ -1,12 +1,12 @@
 <?php
 /**
- * Запуск всех тестов Libraries
- *
- * @package Test
- * @subpackage PhpUnit
- * @author niko
- * @filesource
- *
+ * @version $Revision$
+ * @category PhpResizerTests
+ * @package PhpResizer
+ * @subpackage Engine
+ * @copyright  http://phpresizer.org/
+ * @license New BSD license
+ * @author $Author$ $Date$
  */
 
 require_once 'PHPUnit/Framework.php';

@@ -1,26 +1,27 @@
 <?php
 /**
- * Test
- *
- * @package Test
- * @subpackage PhpUnit
- * @author niko
- * @filesource
- *
+ * @version $Revision$
+ * @category PhpResizerTests
+ * @package PhpResizer
+ * @subpackage Engine
+ * @copyright  http://phpresizer.org/
+ * @license New BSD license
+ * @author $Author$ $Date$
  */
+
 /**
  * Родительский класс для все классов тетсирования Stickr
  */
 class Resizer_TestCase extends PHPUnit_Framework_TestCase {
-	static public $cacheDir;
-	static public $testFile;
-    
-	/**
-	 * Метод выполняется перед всеми тестами в текущем классе
-	 */
+    static public $cacheDir;
+    static public $testFile;
+
+    /**
+     * Метод выполняется перед всеми тестами в текущем классе
+     */
     public static function setUpBeforeClass(){
-    	self::$cacheDir=dirname(__FILE__).'/cache/';
-    	self::$testFile=dirname(__FILE__).'/ResizerTestFile/';
+        self::$cacheDir=dirname(__FILE__).'/cache/';
+        self::$testFile=dirname(__FILE__).'/ResizerTestFile/';
     }
 
     /**
@@ -33,8 +34,8 @@ class Resizer_TestCase extends PHPUnit_Framework_TestCase {
      * Метод выполняется перед каждым тестируемым методом
      */
     public function setUp (){
-    	$command = 'rm -rf '.self::$cacheDir.'*';
-    	exec ($command);
+        $command = 'rm -rf '.self::$cacheDir.'*';
+        exec ($command);
     }
 
     /**
@@ -42,17 +43,17 @@ class Resizer_TestCase extends PHPUnit_Framework_TestCase {
      */
     protected function tearDown(){
         $command = 'rm -rf '.self::$cacheDir.'*';
-    	//exec ($command);
+        //exec ($command);
     }
 
-    
+
     /**
      *
      * @param string $url
      * @param array $options
      * @return array
      */
-    
+
     protected function sendGET ($url,array $options=array()) {
          $defaultOptions = array(
              'session' => false

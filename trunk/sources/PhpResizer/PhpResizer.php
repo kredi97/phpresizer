@@ -47,6 +47,21 @@ class PhpResizer_PhpResizer {
     protected $_engine;
 
     /**
+     * @var string
+     */
+    protected $_cacheDir;
+
+    /**
+     * @var string
+     */
+    protected $_tmpDir;
+
+    /**
+     * @var bool
+     */
+    protected $_useCache = false;
+
+    /**
      * @param array $options
      */
     public function __construct(array $options = array())
@@ -59,12 +74,14 @@ class PhpResizer_PhpResizer {
             'tmpDir' => '/tmp/'
         ), $options);
 
-        $this->_validateTmpDir($this->_config['tmpDir']);
+        $this->_useCache = (bool)$this->_config['cache'];
+        $this->_tmpDir = $this->_config['tmpDir'];
+        $this->_cacheDir = $this->_config['cacheDir'];
 
-        if ($this->_config['cache']) {
-            $this->_validateCacheDir($this->_config['cacheDir']);
+        $this->_validateTmpDir();
+        if ($this->_useCache) {
+            $this->_validateCacheDir();
         }
-
         if (isset($this->_config['engine'])) {
             $this->useEngine($this->_config['engine']);
         }
@@ -82,23 +99,22 @@ class PhpResizer_PhpResizer {
     }
 
     /**
-     * @param string $dir
      * @throws PhpResizer_Exception_Basic
      */
-    protected function _validateTmpDir($dir)
+    protected function _validateTmpDir()
     {
-        if (!is_writable($dir)) {
-            $message = sprintf(self::EXC_TMPDIR_NOT_EXISTS, $dir);
+        if (!is_writable($this->_tmpDir)) {
+            $message = sprintf(self::EXC_TMPDIR_NOT_EXISTS, $this->_tmpDir);
             throw new PhpResizer_Exception_Basic($message);
         }
     }
 
     /**
-     * @param string $dir
      * @throws PhpResizer_Exception_Basic
      */
-    protected function _validateCacheDir($dir)
+    protected function _validateCacheDir()
     {
+        $dir = $this->_cacheDir;
         if (!is_writable($dir) || !is_executable($dir)) {
             $message = sprintf(self::EXC_CACHEDIR_NOT_EXISTS, $dir);
             throw new PhpResizer_Exception_Basic($message);
@@ -126,7 +142,7 @@ class PhpResizer_PhpResizer {
         }
 
         if (isset($options['returnOnlyPath']) && $options['returnOnlyPath']
-            && $this->_config['cache'])
+            && $this->_useCache)
         {
             unset($options['returnOnlyPath']);
             $this->_returnOnlyPath = true;
@@ -149,7 +165,7 @@ class PhpResizer_PhpResizer {
             $this->_return404();
         }
 
-        if (!$this->_config['cache']){
+        if (!$this->_useCache){
             $this->_returnImageOrPath($cacheFile, $options);
             unlink($cacheFile);
 
@@ -168,7 +184,7 @@ class PhpResizer_PhpResizer {
     protected function _getCacheFileName ($path, $options)
     {
         $cacheFile = null;
-        if ($this->_config['cache']) {
+        if ($this->_useCache) {
             $cacheFile = $this->generatePath($path,$options);
             if (file_exists($cacheFile) && getimagesize($cacheFile) &&
                 filemtime($cacheFile)>=filemtime($path)) {
@@ -179,7 +195,7 @@ class PhpResizer_PhpResizer {
             }
 
         } else {
-            $cacheFile = $this->_config['tmpDir'] . '/imageResizerTmpFile_'
+            $cacheFile = $this->_tmpDir . '/imageResizerTmpFile_'
                 . uniqid() . '.' . $this->getExtension($path);
         }
 
@@ -217,7 +233,7 @@ class PhpResizer_PhpResizer {
         }
 
         $hash = md5(serialize($options).$path);
-        $cacheFilePath = $this->_config['cacheDir'] . '/' . substr($hash, 0,2)
+        $cacheFilePath = $this->_cacheDir . '/' . substr($hash, 0,2)
             . '/' . substr($hash, 2, 2) . '/' . substr($hash, 4) . '.'
             . $this->getExtension($path);
 

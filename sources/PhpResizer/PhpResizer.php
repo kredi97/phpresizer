@@ -163,7 +163,7 @@ class PhpResizer_PhpResizer {
      * @param $options
      * @return string
      */
-    private function _getCacheFileName ($path, $options)
+    protected function _getCacheFileName ($path, $options)
     {
         $cacheFile = null;
         if ($this->_config['cache']) {
@@ -188,7 +188,7 @@ class PhpResizer_PhpResizer {
      * @param string $filename
      * @return string
      */
-    private function getExtensionFilter($filename)
+    protected function getExtensionFilter($filename)
     {
         $allowedExtenstions = array('png');
         $defaultExtension = 'jpg';
@@ -228,7 +228,7 @@ class PhpResizer_PhpResizer {
     /**
      * @param string $filename absolute path to image-file
      */
-    private function _returnImageOrPath($filename)
+    protected function _returnImageOrPath($filename)
     {
         if ($this->_returnOnlyPath) {
             return $filename;
@@ -249,7 +249,7 @@ class PhpResizer_PhpResizer {
     /**
      * Send 404 HTTP code
      */
-    private function _return404()
+    protected function _return404()
     {
         header('HTTP/1.1 404 Not Found');
         exit;
@@ -259,7 +259,7 @@ class PhpResizer_PhpResizer {
      * @param string $filename absolute path to image-file
      * @return boolean
      */
-    private function _checkEtag($filename)
+    protected function _checkEtag($filename)
     {
         if (!$this->_config['cacheBrowser']) {
             return false;

@@ -62,7 +62,7 @@ class PhpResizer_PhpResizerTest extends PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider providerFiles
-     * @knownException PhpResizer_Exception_ProcessBmpWithGd2
+     * @knownException PhpResizer_Exception_IncorrectExtension
      */
     public function testResize($file)
     {

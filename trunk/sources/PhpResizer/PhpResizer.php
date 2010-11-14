@@ -129,11 +129,11 @@ class PhpResizer_PhpResizer {
      */
     public function resize($filename, array $options = array())
     {
-        if (!is_readable($filename)) {
+    	if (!is_readable($filename)) {
             return $this->_return404();
 
         } else if (false === ($size = @getimagesize($filename))) {
-            $message = sprintf(self::EXC_FILE_CRASHED, $path);
+            $message = sprintf(self::EXC_FILE_CRASHED, $filename);
             throw new PhpResizer_Exception_Basic($message);
         }
 
@@ -156,7 +156,7 @@ class PhpResizer_PhpResizer {
         $cacheFile = $this->_getCacheFileName($filename, $options);
 
         $options += array(
-            'path' => $path,
+            'path' => $filename,
             'size' => $size,
             'cacheFile' => $cacheFile,
         );
@@ -172,6 +172,7 @@ class PhpResizer_PhpResizer {
         } else {
             return $this->_returnImageOrPath($cacheFile, $options);
         }
+                	        	 
     }
 
     /**

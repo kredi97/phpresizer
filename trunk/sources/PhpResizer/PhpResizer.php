@@ -13,45 +13,81 @@
  */
 class PhpResizer_PhpResizer {
 
-    const ENGINE_GD2='GD2';
-    const ENGINE_IMAGEMAGICK='ImageMagic';
-    const ENGINE_GRAPHIKSMAGICK='GraphicsMagick';
-    private $avalibleEngine = array (self::ENGINE_GD2,self::ENGINE_IMAGEMAGICK,self::ENGINE_GRAPHIKSMAGICK);
+    const ENGINE_GD2 = 'GD2';
+    const ENGINE_IMAGEMAGICK = 'ImageMagic';
+    const ENGINE_GRAPHIKSMAGICK = 'GraphicsMagick';
+
+    const EXC_TMPDIR_NOT_EXISTS = 'Path "%s" is not exists or not writtable';
+
+    const EXC_CACHEDIR_NOT_EXISTS = 'Path "%s" is not exists or not writtable or not executable';
 
     /**
      * initialization configuration
      * @var array
      */
-    private $_defaultConfig = array (
-        'engine'=>'GD2',
-        'cache'=>true,
-        'cacheBrowser'=>true,
-        'cacheDir'=>'/tmp/resizerCache/',
-        'tmpDir'=>'/tmp/'
+    private $_config = array (
+        'engine' => self::ENGINE_GD2,
+        'cache' => true,
+        'cacheBrowser' => true,
+        'cacheDir' => '/tmp/resizerCache/',
+        'tmpDir' => '/tmp/'
     );
-    private $_config;
     private $_returnOnlyPath = false;
-    private $_checkETag;
+    private $_checkEtag;
+
+    /**
+     * @var PhpResizer_Engine_EngineAbstract
+     */
+    protected $_engine;
 
 
-    public function __construct(array $cnf=array()) {
-        $this->_config=array_merge($this->_defaultConfig,$cnf);
+    public function __construct(array $options = array())
+    {
+        $this->_config = array_merge($this->_config, $options);
 
-        if (!is_dir($this->_config['tmpDir']) OR !is_writable($this->_config['tmpDir'])) {
-            throw new PhpResizer_PhpResizerException('path '.$this->_config['tmpDir'].' is not exist or nor writible');
+        $this->_validateTmpDir($this->_config['tmpDir']);
+
+        if ($this->_config['cache']) {
+            $this->_validateCacheDir($this->_config['cacheDir']);
         }
 
-        if ($this->_config['cache']
-            AND (!is_dir($this->_config['cacheDir'])
-            OR !is_writable($this->_config['cacheDir'])
-            OR !is_executable($this->_config['cacheDir']))) {
-            throw new PhpResizer_PhpResizerException('path '.$this->_config['cacheDir'].' is not exist or nor writible or no executable');
-        }
-
-        $class = 'PhpResizer_Engine_' . $this->_config['engine'];
-        $this->enginer = new $class();
+        $this->_engine = $this->_createEngine($this->_config['engine']);
     }
 
+    /**
+     * @param string $name
+     * @return PhpResizer_Engine_EngineAbstract
+     */
+    protected function _createEngine($name)
+    {
+        $class = 'PhpResizer_Engine_' . $name;
+        $engine = new $class();
+        return $engine;
+    }
+
+    /**
+     * @param string $dir
+     * @throws PhpResizer_PhpResizerException
+     */
+    protected function _validateTmpDir($dir)
+    {
+        if (!is_writable($dir)) {
+            $message = sprintf(self::EXC_TMPDIR_NOT_EXISTS, $dir);
+            throw new PhpResizer_PhpResizerException($message);
+        }
+    }
+
+    /**
+     * @param string $dir
+     * @throws PhpResizer_PhpResizerException
+     */
+    protected function _validateCacheDir($dir)
+    {
+        if (!is_writable($dir) || !is_executable($dir)) {
+            $message = sprintf(self::EXC_CACHEDIR_NOT_EXISTS, $dir);
+            throw new PhpResizer_PhpResizerException($message);
+        }
+    }
 
     /**
      *
@@ -79,7 +115,7 @@ class PhpResizer_PhpResizer {
         $cacheFile = $this->_getCacheFileName($path,$options);
 
 
-        if ($this->enginer->resize(
+        if ($this->_engine->resize(
             $options+=array(
             'path'=>$path,
             'cacheFile'=>$cacheFile,
@@ -161,7 +197,7 @@ class PhpResizer_PhpResizer {
                 return $filename;
         }
 
-        if ($this->_checkETag($filename)) {
+        if ($this->_checkEtag($filename)) {
             header("HTTP/1.1 304 Not Modified");
         }else{
 
@@ -184,18 +220,18 @@ class PhpResizer_PhpResizer {
      * @param string $filename absolute path to image-file
      * @return boolean
      */
-    private function _checkETag ($filename) {
+    private function _checkEtag($filename) {
         if (!$this->_config['cacheBrowser']) {
             return false;
         }
-        if (isset ($this->checkETag)) {
-            return $this->checkETag;
+        if (isset ($this->_checkEtag)) {
+            return $this->_checkEtag;
         }
         if (isset($_SERVER['HTTP_IF_NONE_MATCH'])&& md5_file($filename)==$_SERVER['HTTP_IF_NONE_MATCH']) {
-            $this->checkETag=true;
+            $this->_checkEtag = true;
             return true;
         }else{
-            $this->checkETag=false;
+            $this->_checkEtag = false;
             return false;
         }
     }

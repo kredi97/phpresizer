@@ -289,4 +289,28 @@ class PhpResizer_PhpResizer {
         passthru($command, $result);
         return $result;
     }
+
+    /**
+     * @return bool
+     */
+    public function isGD2()
+    {
+        return $this->_engine instanceof PhpResizer_Engine_GD2;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isImageMagickEngine()
+    {
+        return $this->_engine instanceof PhpResizer_Engine_ImageMagic;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isGraphicsMagick()
+    {
+         return $this->_engine instanceof PhpResizer_Engine_GraphicsMagick;
+    }
 }

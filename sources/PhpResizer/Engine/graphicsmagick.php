@@ -9,12 +9,10 @@
  * @copyright http://phpresizer.org/
  */
 
-require_once ('abstract.php');
-
 /**
  *
  */
-class graphicsmagick extends ImageEngine  {
+class PhpResizer_Engine_graphicsmagick extends PhpResizer_Engine_abstract  {
 
     protected $types=array(1 => "gif", "png","jpg","bmp","tif");
 

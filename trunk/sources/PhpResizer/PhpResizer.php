@@ -20,6 +20,11 @@ class PhpResizer_PhpResizer {
     const EXC_TMPDIR_NOT_EXISTS = 'Path "%s" is not exists or not writtable';
     const EXC_CACHEDIR_NOT_EXISTS =
         'Path "%s" is not exists or not writtable or not executable';
+    const EXC_FILE_CRASHED = 'File "%s" is crashed';
+    const EXC_ENABLE_CACHE =
+        'For "returnOnlyPath" option set "cache" options as TRUE';
+
+    const DEFAULT_CACHE_TTL = 10080;
 
     /**
      * @var array
@@ -100,93 +105,114 @@ class PhpResizer_PhpResizer {
 
     /**
      *
-     * @param string $path
+     * @param string $filename
      * @param array $options
+     * @throws PhpResizer_PhpResizerException
      */
-    public function resize($path, array $options = array())
+    public function resize($filename, array $options = array())
     {
-        if (!file_exists($path)) {
-            $this->_return404($path);
-        }elseif (!$size = @getimagesize($path)) {
-            throw new PhpResizer_PhpResizerException('file '.$path.' is crashed');
+        if (!is_readable($filename)) {
+            return $this->_return404();
+
+        } else if (false === ($size = @getimagesize($filename))) {
+            $message = sprintf(self::EXC_FILE_CRASHED, $path);
+            throw new PhpResizer_PhpResizerException($message);
         }
 
-        if (empty($options)) {
-            $this->_returnImageOrPath($path);
+        if (!$options) {
+            $this->_returnImageOrPath($filename);
         }
 
-        if (isset($options['returnOnlyPath']) AND $options['returnOnlyPath']=== true AND $this->_config['cache']) {
-                unset ($options['returnOnlyPath']);
-                $this->_returnOnlyPath = true;
-        }elseif(isset($options['returnOnlyPath']) AND $options['returnOnlyPath']=== true){
-                throw new PhpResizer_PhpResizerException('for returnOnlyPath turn cache TRUE');
+        if (isset($options['returnOnlyPath']) && $options['returnOnlyPath']
+            && $this->_config['cache'])
+        {
+            unset($options['returnOnlyPath']);
+            $this->_returnOnlyPath = true;
+
+        } else if (isset($options['returnOnlyPath'])
+            && $options['returnOnlyPath'])
+        {
+            throw new PhpResizer_PhpResizerException(self::EXC_ENABLE_CACHE);
         }
 
-        $cacheFile = $this->_getCacheFileName($path,$options);
+        $cacheFile = $this->_getCacheFileName($filename, $options);
 
+        $options += array(
+            'path' => $path,
+            'size' => $size,
+            'cacheFile' => $cacheFile,
+        );
 
-        if ($this->_engine->resize(
-            $options+=array(
-            'path'=>$path,
-            'cacheFile'=>$cacheFile,
-            'size'=>$size))!==true) {
+        if (!$this->_engine->resize($options)) {
             $this->_return404();
         }
 
-
         if (!$this->_config['cache']){
-            $this->_returnImageOrPath($cacheFile,$options);
+            $this->_returnImageOrPath($cacheFile, $options);
             unlink($cacheFile);
-            return;
-        }else{
-            return $this->_returnImageOrPath($cacheFile,$options);
+
+        } else {
+            return $this->_returnImageOrPath($cacheFile, $options);
         }
     }
 
     /**
+     * Return image if cacheFile is valid and exist or return path to newcacheFile
      *
-     * return image if cacheFile is valid and exist OR return path to newcacheFile
-     * @param $options
      * @param $path
+     * @param $options
+     * @return string
      */
     private function _getCacheFileName ($path, $options)
     {
-        $cacheFile=null;
-
+        $cacheFile = null;
         if ($this->_config['cache']) {
-            $cacheFile= $this->generatePath($path,$options);
-            if (file_exists($cacheFile) &&
-                getimagesize($cacheFile) &&
+            $cacheFile = $this->generatePath($path,$options);
+            if (file_exists($cacheFile) && getimagesize($cacheFile) &&
                 filemtime($cacheFile)>=filemtime($path)) {
-                    return $this->_returnImageOrPath($cacheFile,$options);
-            }elseif (file_exists($cacheFile)){
+                    return $this->_returnImageOrPath($cacheFile, $options);
+
+            } else if (file_exists($cacheFile)) {
                 unlink($cacheFile);
             }
-        }else{
-            $cacheFile=$this->_config['tmpDir'].'/imageResizerTmpFile_'.md5(microtime().mt_rand(100000,999999)).$this->getExtensionFilter($path);
+
+        } else {
+            $cacheFile = $this->_config['tmpDir'] . '/imageResizerTmpFile_'
+                . uniqid() . $this->getExtensionFilter($path);
         }
+
         return $cacheFile;
     }
 
-    private function getExtensionFilter ($path) {
-        $fileInfoExtension = strtolower(pathinfo($path,PATHINFO_EXTENSION));
-        return (in_array($fileInfoExtension,array('png')))?'.'.$fileInfoExtension:'.jpg';
+    /**
+     * @param string $filename
+     * @return string
+     */
+    private function getExtensionFilter($filename)
+    {
+        $allowedExtenstions = array('png');
+        $defaultExtension = 'jpg';
+        $ext = substr($path, strlen($path) - 3);
+
+        if (in_array($ext, $allowedExtenstions)) {
+            return '.' . $ext;
+
+        } else {
+            return '.' . $defaultExtension;
+        }
     }
 
-    public function generatePath ($path, array $options)
+    /**
+     * @param string $path
+     * @param array $options
+     * @return string
+     */
+    public function generatePath($path, array $options)
     {
 
         if (isset($options['returnOnlyPath'])) {
             unset ($options['returnOnlyPath']);
         }
-//    	$cacheFilePath = $this->_config['cacheDir'].implode('_',$options).'/'.str_replace('/','-',$path).$this->getExtensionFilter($path);
-//    	if(!is_dir(dirname($cacheFilePath))){
-//            mkdir(dirname($cacheFilePath));
-//        }
-//    	return $cacheFilePath;
-//
-//    	$cacheFilePath = $this->_config['cacheDir'].'/'.str_replace('/','-',$path).$this->getExtensionFilter($path);
-//    	return $cacheFilePath;
 
         $hash = md5(serialize($options).$path);
         $cacheFilePath = $this->_config['cacheDir'].'/'.substr($hash, 0,2).'/'.substr($hash,2,2).'/'.substr($hash,4).$this->getExtensionFilter($path);
@@ -202,32 +228,34 @@ class PhpResizer_PhpResizer {
     /**
      * @param string $filename absolute path to image-file
      */
-    private function _returnImageOrPath($filename, array $options = array())
+    private function _returnImageOrPath($filename)
     {
         if ($this->_returnOnlyPath) {
-                return $filename;
+            return $filename;
         }
 
         if ($this->_checkEtag($filename)) {
             header("HTTP/1.1 304 Not Modified");
-        }else{
 
+        } else {
             header("Content-type: image/jpeg");
             header("Content-Length: ".@filesize($filename));
             header('ETag: '.md5_file($filename));
-            readfile ($filename); exit();
+            readfile ($filename);
+            exit;
         }
     }
 
-    private function _return404($fileName)
+    /**
+     * Send 404 HTTP code
+     */
+    private function _return404()
     {
         header('HTTP/1.1 404 Not Found');
-        echo 'file '.$fileName.' not found';
-          exit;
+        exit;
     }
 
     /**
-     *
      * @param string $filename absolute path to image-file
      * @return boolean
      */
@@ -236,29 +264,29 @@ class PhpResizer_PhpResizer {
         if (!$this->_config['cacheBrowser']) {
             return false;
         }
-        if (isset ($this->_checkEtag)) {
+        if (isset($this->_checkEtag)) {
             return $this->_checkEtag;
         }
-        if (isset($_SERVER['HTTP_IF_NONE_MATCH'])&& md5_file($filename)==$_SERVER['HTTP_IF_NONE_MATCH']) {
+        if (isset($_SERVER['HTTP_IF_NONE_MATCH'])
+            && md5_file($filename) == $_SERVER['HTTP_IF_NONE_MATCH'])
+        {
             $this->_checkEtag = true;
             return true;
-        }else{
+
+        } else {
             $this->_checkEtag = false;
             return false;
         }
     }
 
     /**
-     *
-     * @param integer $timeMinuts
+     * @param int $ttl
+     * @return string
      */
-    public function clearCache ($timeMinuts=10080)
+    public function clearCache($ttl = self::DEFAULT_CACHE_TTL)
     {
-        $timeMinuts=(int)$timeMinuts;
-        $command = "find ".$this->_config['cacheDir']." \! -type d -amin +".$timeMinuts." -exec  rm -v '{}' ';'";
-        ob_start();
-            passthru($command);
-        $result = ob_get_clean();
+        $command = "find {$this->_config['cacheDir']} \! -type d -amin +{$ttl} -exec  rm -v '{}' ';'";
+        passthru($command, $result);
         return $result;
     }
 }

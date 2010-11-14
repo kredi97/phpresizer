@@ -28,7 +28,7 @@ class PhpResizer_Engine_GraphicsMagick extends PhpResizer_Engine_EngineAbstract 
         $resultSearch = strpos($stringOutput,'GraphicsMagick');
 
         if ($resultSearch===false) {
-            throw new PhpResizer_PhpResizerException('Engine '.__CLASS__.' is not avalible');
+            throw new PhpResizer_Exception_Basic('Engine '.__CLASS__.' is not avalible');
         }
     }
 

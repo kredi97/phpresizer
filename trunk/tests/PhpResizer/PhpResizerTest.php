@@ -13,72 +13,98 @@
  */
 class PhpResizer_PhpResizerTest extends PHPUnit_Framework_TestCase
 {
-    protected $_cacheDir;
+    /**
+     * @var string
+     */
+    protected $_filesDir;
 
-    protected $_testFile;
+    /**
+     * @var PhpResizer_PhpResizer
+     */
+    protected $_fixture;
 
     /**
      *
      */
     public function setUp()
     {
-        $this->_cacheDir = dirname(__FILE__).'/cache/';
-        $this->_testFile = dirname(__FILE__).'/ResizerTestFile/';
-        $this->_cleanCacheDir();
-    }
+        $path = dirname(__FILE__);
+        $this->_filesDir = $path . DIRECTORY_SEPARATOR . 'files';
 
-    protected function _cleanCacheDir()
-    {
-        $command = 'rm -rf '.self::$cacheDir.'*';
-        exec ($command);
+        $cacheDir = $path . DIRECTORY_SEPARATOR . 'cache';
+        $this->_cleanDir($cacheDir);
+
+        $options = array(
+            'cacheDir' => $cacheDir,
+        );
+        $this->_fixture = new PhpResizer_PhpResizer($options);
     }
 
     /**
+     * Delete all files from directory
      *
+     * @param string $dir
      */
-    public function testResize()
+    protected function _cleanDir($dir)
     {
-        $normalFiles = array ('normal.bmp','normal.jpg','normalCMYK.jpg','normal.gif');
-        foreach ($normalFiles as $file) {
-            foreach (array(Resizer::ENGINE_GRAPHIKSMAGICK, Resizer::ENGINE_IMAGEMAGICK, Resizer::ENGINE_GD2) as $engine) {
+        $command = "rm -rf {$dir}/*";
+        exec($command);
+    }
 
-                $resizer = new Resizer(array(
-                    'engine'=>$engine,
-                    'cacheDir'=>self::$cacheDir
-                    )
-                );
+    /**
+     * @return array
+     */
+    public function providerFiles()
+    {
+        return array('normal.bmp', 'normal.jpg', 'normalCMYK.jpg'
+            , 'normal.gif');
+    }
 
-                $opt = array(
-                    'width'=>100,
-                    'height'=>150,
-                    'crop'=>75,
-                    'aspect'=>false,
-                    'returnOnlyPath'=>true
-                );
+    /**
+     * @dataProvider providerFiles
+     * @knownException PhpResizer_Exception_ProcessBmpWithGd2
+     */
+    public function testResize($file)
+    {
+        $options = array(
+            'width'  => 100,
+            'height' => 150,
+            'crop'   => 75,
+            'aspect' => false,
+            'returnOnlyPath' => true,
+        );
 
-                $fileInfoExtension = strtolower(pathinfo($file,PATHINFO_EXTENSION));
-                $fileInfoExtensionFilter = (in_array($fileInfoExtension,array('png')))?$fileInfoExtension:'jpg';
+        $ext = $this->_fixture->getExtension($file);
+        $filename = $this->_filesDir . DIRECTORY_SEPARATOR . $file;
+        $cache = $this->_fixture->generatePath($filename, $options);
 
-                $cacheFile = $resizer->generatePath(self::$testFile.$file,$opt);
+        foreach ($this->_getAvailableEngines() as $engine) {
+            $this->_fixture->useEngine($engine);
+            $this->_fixture->resize($filename, $options);
 
-                $this->assertEquals($fileInfoExtensionFilter,pathinfo($cacheFile,PATHINFO_EXTENSION),'расширение исходного и ужатого файла (движок:'.$engine.') (файл:'.$file.')');
+            list($width, $height) = getimagesize($cache);
 
-                try {
-                    $resizer->resize(self::$testFile.$file,$opt);
-                }catch (ResizerException $e) {
-                    if ($engine == Resizer::ENGINE_GD2 and $fileInfoExtension =='bmp') {
-                        continue;
-                    }
-                    $this->assertTrue(false, 'Не перехваченное исключение (движок:'.$engine.') (файл:'.$file.')');
-                }
+            $this->assertTrue(file_exists($cache)
+                , 'Наличие файла в кэше (движок:'.$engine.') (файл:'.$filename.')');
+            $this->assertEquals($width, $options['width']
+                , 'ширина файла (движок:'.$engine.') (файл:'.$file.')');
+            $this->assertEquals($height, $options['height']
+                ,'высота файла (движок:'.$engine.') (файл:'.$file.')');
+        }
+    }
 
-                $this->assertTrue(file_exists($cacheFile), 'Наличие файла в кэше (движок:'.$engine.') (файл:'.$file.')');
-
-                $getimagesize = getimagesize($cacheFile);
-
-                $this->assertEquals($getimagesize[0],$opt['width'],'ширина файла (движок:'.$engine.') (файл:'.$file.')');
-                $this->assertTrue($opt['height']-1<=$getimagesize[1] AND $getimagesize[1]<=$opt['height']+1 ,'высота файла (движок:'.$engine.') (файл:'.$file.')');
+    /**
+     * @return array
+     */
+    private function _getAvailableEngines()
+    {
+        $engines = array();
+        $reflection = new ReflectionClass($this->_fixture);
+        foreach ($reflection->getConstants() as $const) {
+            if (0 === strpos($const, 'ENGINE')) {
+                $engines[] = $const;
             }
         }
+        return $engines;
     }
 }

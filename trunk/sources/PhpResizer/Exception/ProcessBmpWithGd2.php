@@ -9,8 +9,8 @@
  */
 
 /**
- * Standard exception for PhpResizer package.
+ *
  */
-class PhpResizer_PhpResizerException extends Exception
+class PhpResizer_Exception_ProcessBmpWithGd2 extends PhpResizer_Exception_Basic
 {
 }

@@ -1,4 +1,12 @@
 <?php
+/**
+ * @version $Revision$
+ * @category PhpResizerTest
+ * @package PhpResizerTest
+ * @author $Author$ $Date$
+ * @license New BSD license
+ * @copyright http://phpresizer.org/
+ */
 
 define('APPLICATION_PATH', realpath(dirname(__FILE__) . '/../'));
 

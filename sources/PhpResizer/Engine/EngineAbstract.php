@@ -190,10 +190,7 @@ abstract class PhpResizer_Engine_EngineAbstract
     }
 
     /**
-     *
      * @return boolean
      */
-    public function resize () {}
-
-
+    abstract public function resize ();
 }

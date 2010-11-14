@@ -13,9 +13,9 @@
  */
 class PhpResizer_PhpResizer {
 
-    const ENGINE_GD2='gd2';
-    const ENGINE_IMAGEMAGICK='imagemagic';
-    const ENGINE_GRAPHIKSMAGICK='graphicsmagick';
+    const ENGINE_GD2='GD2';
+    const ENGINE_IMAGEMAGICK='ImageMagic';
+    const ENGINE_GRAPHIKSMAGICK='GraphicsMagick';
     private $avalibleEngine = array (self::ENGINE_GD2,self::ENGINE_IMAGEMAGICK,self::ENGINE_GRAPHIKSMAGICK);
 
     /**
@@ -23,7 +23,7 @@ class PhpResizer_PhpResizer {
      * @var array
      */
     private $_defaultConfig = array (
-        'engine'=>'gd2',
+        'engine'=>'GD2',
         'cache'=>true,
         'cacheBrowser'=>true,
         'cacheDir'=>'/tmp/resizerCache/',

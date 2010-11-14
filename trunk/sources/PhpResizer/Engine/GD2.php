@@ -12,7 +12,7 @@
 /**
  *
  */
-class PhpResizer_Engine_gd2 extends PhpResizer_Engine_abstract  {
+class PhpResizer_Engine_GD2 extends PhpResizer_Engine_EngineAbstract  {
 
     protected $types=array(1 => "gif", "jpeg","png","jpg","tif");
 

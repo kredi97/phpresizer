@@ -12,7 +12,7 @@
 /**
  *
  */
-abstract class PhpResizer_Engine_abstract {
+abstract class PhpResizer_Engine_EngineAbstract {
 
     protected $params=null;
 

@@ -13,7 +13,7 @@
  *
  *
  */
-class PhpResizer_Engine_imagemagic extends PhpResizer_Engine_abstract  {
+class PhpResizer_Engine_ImageMagic extends PhpResizer_Engine_EngineAbstract  {
 
     protected $types=array(1 => "gif", "png","jpg","bmp","tif");
 

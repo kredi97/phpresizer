@@ -18,7 +18,7 @@ class PhpResizer_Engine_GD2 extends PhpResizer_Engine_EngineAbstract  {
 
     protected function _checkEngine () {
         if (!extension_loaded('gd')) {
-            throw new PhpResizer_PhpResizerException();
+            throw new PhpResizer_Exception_Basic();
         }
     }
 

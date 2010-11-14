@@ -95,25 +95,25 @@ abstract class PhpResizer_Engine_EngineAbstract
         }
 
         if (!is_string($this->params['path'])) {
-            throw new PhpResizer_PhpResizerException('path is not string');
+            throw new PhpResizer_Exception_Basic('path is not string');
         }
 
         if (!$this->params['cacheFile']
             || !is_string($this->params['cacheFile']))
         {
-            throw new PhpResizer_PhpResizerException('cacheFile is not string');
+            throw new PhpResizer_Exception_Basic('cacheFile is not string');
         }
 
         if (!$this->params['size']
             ||!is_array($this->params['size']))
         {
-            throw new PhpResizer_PhpResizerException('size is not array');
+            throw new PhpResizer_Exception_Basic('size is not array');
         }
 
         $ext = substr(
             $this->_params['path'], strlen($this->_params['path']) - 4);
         if (!in_array(strtolower($ext, $this->types))) {
-            throw new PhpResizer_PhpResizerException('extension  '.$ext.' is not allowed');
+            throw new PhpResizer_Exception_Basic('extension  '.$ext.' is not allowed');
         }
     }
 

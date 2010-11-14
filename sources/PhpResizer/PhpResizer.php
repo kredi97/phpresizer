@@ -29,23 +29,17 @@ class PhpResizer_PhpResizer {
     /**
      * @var array
      */
-    private $_config = array (
-        'engine' => self::ENGINE_GD2,
-        'cache' => true,
-        'cacheBrowser' => true,
-        'cacheDir' => '/tmp/resizerCache/',
-        'tmpDir' => '/tmp/'
-    );
+    protected $_config;
 
     /**
      * @var bool
      */
-    private $_returnOnlyPath = false;
+    protected $_returnOnlyPath = false;
 
     /**
      * @var bool
      */
-    private $_checkEtag;
+    protected $_checkEtag;
 
     /**
      * @var PhpResizer_Engine_EngineAbstract
@@ -57,7 +51,13 @@ class PhpResizer_PhpResizer {
      */
     public function __construct(array $options = array())
     {
-        $this->_config = array_merge($this->_config, $options);
+        $this->_config = array_merge(array (
+            'engine' => self::ENGINE_GD2,
+            'cache' => true,
+            'cacheBrowser' => true,
+            'cacheDir' => '/tmp/resizerCache/',
+            'tmpDir' => '/tmp/'
+        ), $options);
 
         $this->_validateTmpDir($this->_config['tmpDir']);
 
@@ -65,7 +65,9 @@ class PhpResizer_PhpResizer {
             $this->_validateCacheDir($this->_config['cacheDir']);
         }
 
-        $this->_engine = $this->_createEngine($this->_config['engine']);
+        if (isset($this->_config['engine'])) {
+            $this->useEngine($this->_config['engine']);
+        }
     }
 
     /**
@@ -81,25 +83,25 @@ class PhpResizer_PhpResizer {
 
     /**
      * @param string $dir
-     * @throws PhpResizer_PhpResizerException
+     * @throws PhpResizer_Exception_Basic
      */
     protected function _validateTmpDir($dir)
     {
         if (!is_writable($dir)) {
             $message = sprintf(self::EXC_TMPDIR_NOT_EXISTS, $dir);
-            throw new PhpResizer_PhpResizerException($message);
+            throw new PhpResizer_Exception_Basic($message);
         }
     }
 
     /**
      * @param string $dir
-     * @throws PhpResizer_PhpResizerException
+     * @throws PhpResizer_Exception_Basic
      */
     protected function _validateCacheDir($dir)
     {
         if (!is_writable($dir) || !is_executable($dir)) {
             $message = sprintf(self::EXC_CACHEDIR_NOT_EXISTS, $dir);
-            throw new PhpResizer_PhpResizerException($message);
+            throw new PhpResizer_Exception_Basic($message);
         }
     }
 
@@ -107,7 +109,7 @@ class PhpResizer_PhpResizer {
      *
      * @param string $filename
      * @param array $options
-     * @throws PhpResizer_PhpResizerException
+     * @throws PhpResizer_Exception_Basic
      */
     public function resize($filename, array $options = array())
     {
@@ -116,7 +118,7 @@ class PhpResizer_PhpResizer {
 
         } else if (false === ($size = @getimagesize($filename))) {
             $message = sprintf(self::EXC_FILE_CRASHED, $path);
-            throw new PhpResizer_PhpResizerException($message);
+            throw new PhpResizer_Exception_Basic($message);
         }
 
         if (!$options) {
@@ -132,7 +134,7 @@ class PhpResizer_PhpResizer {
         } else if (isset($options['returnOnlyPath'])
             && $options['returnOnlyPath'])
         {
-            throw new PhpResizer_PhpResizerException(self::EXC_ENABLE_CACHE);
+            throw new PhpResizer_Exception_Basic(self::EXC_ENABLE_CACHE);
         }
 
         $cacheFile = $this->_getCacheFileName($filename, $options);
@@ -178,7 +180,7 @@ class PhpResizer_PhpResizer {
 
         } else {
             $cacheFile = $this->_config['tmpDir'] . '/imageResizerTmpFile_'
-                . uniqid() . $this->getExtensionFilter($path);
+                . uniqid() . '.' . $this->getExtension($path);
         }
 
         return $cacheFile;
@@ -188,17 +190,17 @@ class PhpResizer_PhpResizer {
      * @param string $filename
      * @return string
      */
-    protected function getExtensionFilter($filename)
+    public function getExtension($filename)
     {
         $allowedExtenstions = array('png');
         $defaultExtension = 'jpg';
         $ext = substr($path, strlen($path) - 3);
 
         if (in_array($ext, $allowedExtenstions)) {
-            return '.' . $ext;
+            return $ext;
 
         } else {
-            return '.' . $defaultExtension;
+            return $defaultExtension;
         }
     }
 
@@ -215,13 +217,17 @@ class PhpResizer_PhpResizer {
         }
 
         $hash = md5(serialize($options).$path);
-        $cacheFilePath = $this->_config['cacheDir'].'/'.substr($hash, 0,2).'/'.substr($hash,2,2).'/'.substr($hash,4).$this->getExtensionFilter($path);
-        if(!is_dir(dirname(dirname($cacheFilePath)))){
+        $cacheFilePath = $this->_config['cacheDir'] . '/' . substr($hash, 0,2)
+            . '/' . substr($hash, 2, 2) . '/' . substr($hash, 4) . '.'
+            . $this->getExtension($path);
+
+        if (!is_dir(dirname(dirname($cacheFilePath)))){
             mkdir(dirname(dirname($cacheFilePath)));
         }
-        if(!is_dir(dirname($cacheFilePath))){
+        if (!is_dir(dirname($cacheFilePath))){
             mkdir(dirname($cacheFilePath));
         }
+
         return $cacheFilePath;
     }
 
@@ -235,15 +241,16 @@ class PhpResizer_PhpResizer {
         }
 
         if ($this->_checkEtag($filename)) {
-            header("HTTP/1.1 304 Not Modified");
+            header('HTTP/1.1 304 Not Modified');
 
         } else {
-            header("Content-type: image/jpeg");
-            header("Content-Length: ".@filesize($filename));
-            header('ETag: '.md5_file($filename));
-            readfile ($filename);
-            exit;
+            header('Content-type: image/jpeg');
+            header('Content-Length: ' . filesize($filename));
+            header('ETag: ' . md5_file($filename));
+            readfile($filename);
         }
+
+        exit;
     }
 
     /**
@@ -291,26 +298,10 @@ class PhpResizer_PhpResizer {
     }
 
     /**
-     * @return bool
+     * @param string $name
      */
-    public function isGD2()
+    public function useEngine($name)
     {
-        return $this->_engine instanceof PhpResizer_Engine_GD2;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isImageMagickEngine()
-    {
-        return $this->_engine instanceof PhpResizer_Engine_ImageMagic;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isGraphicsMagick()
-    {
-         return $this->_engine instanceof PhpResizer_Engine_GraphicsMagick;
+        $this->_engine = $this->_createEngine($name);
     }
 }

@@ -18,11 +18,10 @@ class PhpResizer_PhpResizer {
     const ENGINE_GRAPHIKSMAGICK = 'GraphicsMagick';
 
     const EXC_TMPDIR_NOT_EXISTS = 'Path "%s" is not exists or not writtable';
-
-    const EXC_CACHEDIR_NOT_EXISTS = 'Path "%s" is not exists or not writtable or not executable';
+    const EXC_CACHEDIR_NOT_EXISTS =
+        'Path "%s" is not exists or not writtable or not executable';
 
     /**
-     * initialization configuration
      * @var array
      */
     private $_config = array (
@@ -32,7 +31,15 @@ class PhpResizer_PhpResizer {
         'cacheDir' => '/tmp/resizerCache/',
         'tmpDir' => '/tmp/'
     );
+
+    /**
+     * @var bool
+     */
     private $_returnOnlyPath = false;
+
+    /**
+     * @var bool
+     */
     private $_checkEtag;
 
     /**
@@ -40,7 +47,9 @@ class PhpResizer_PhpResizer {
      */
     protected $_engine;
 
-
+    /**
+     * @param array $options
+     */
     public function __construct(array $options = array())
     {
         $this->_config = array_merge($this->_config, $options);
@@ -94,7 +103,8 @@ class PhpResizer_PhpResizer {
      * @param string $path
      * @param array $options
      */
-    public function resize($path, array $options = array()) {
+    public function resize($path, array $options = array())
+    {
         if (!file_exists($path)) {
             $this->_return404($path);
         }elseif (!$size = @getimagesize($path)) {
@@ -133,14 +143,14 @@ class PhpResizer_PhpResizer {
         }
     }
 
-
     /**
      *
      * return image if cacheFile is valid and exist OR return path to newcacheFile
      * @param $options
      * @param $path
      */
-    private function _getCacheFileName ($path,$options) {
+    private function _getCacheFileName ($path, $options)
+    {
         $cacheFile=null;
 
         if ($this->_config['cache']) {
@@ -163,7 +173,8 @@ class PhpResizer_PhpResizer {
         return (in_array($fileInfoExtension,array('png')))?'.'.$fileInfoExtension:'.jpg';
     }
 
-    public function generatePath ($path,array $options){
+    public function generatePath ($path, array $options)
+    {
 
         if (isset($options['returnOnlyPath'])) {
             unset ($options['returnOnlyPath']);
@@ -191,8 +202,8 @@ class PhpResizer_PhpResizer {
     /**
      * @param string $filename absolute path to image-file
      */
-    private function _returnImageOrPath ($filename,array $options=array()) {
-
+    private function _returnImageOrPath($filename, array $options = array())
+    {
         if ($this->_returnOnlyPath) {
                 return $filename;
         }
@@ -208,8 +219,8 @@ class PhpResizer_PhpResizer {
         }
     }
 
-
-    private function _return404 ($fileName='') {
+    private function _return404($fileName)
+    {
         header('HTTP/1.1 404 Not Found');
         echo 'file '.$fileName.' not found';
           exit;
@@ -220,7 +231,8 @@ class PhpResizer_PhpResizer {
      * @param string $filename absolute path to image-file
      * @return boolean
      */
-    private function _checkEtag($filename) {
+    private function _checkEtag($filename)
+    {
         if (!$this->_config['cacheBrowser']) {
             return false;
         }
@@ -235,11 +247,13 @@ class PhpResizer_PhpResizer {
             return false;
         }
     }
+
     /**
      *
      * @param integer $timeMinuts
      */
-    public function clearCache ($timeMinuts=10080) {
+    public function clearCache ($timeMinuts=10080)
+    {
         $timeMinuts=(int)$timeMinuts;
         $command = "find ".$this->_config['cacheDir']." \! -type d -amin +".$timeMinuts." -exec  rm -v '{}' ';'";
         ob_start();

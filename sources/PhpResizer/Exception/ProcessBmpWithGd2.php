@@ -3,6 +3,7 @@
  * @version $Revision$
  * @category PhpResizer
  * @package PhpResizer
+ * @subpackage Exception
  * @author $Author$ $Date$
  * @license New BSD license
  * @copyright http://phpresizer.org/

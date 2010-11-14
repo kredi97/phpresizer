@@ -113,7 +113,7 @@ abstract class PhpResizer_Engine_EngineAbstract
         $ext = substr(
             $this->_params['path'], strlen($this->_params['path']) - 4);
         if (!in_array(strtolower($ext, $this->types))) {
-            throw new PhpResizer_Exception_Basic('extension  '.$ext.' is not allowed');
+            throw new PhpResizer_Exception_IncorrectExtension('extension  '.$ext.' is not allowed');
         }
     }
 

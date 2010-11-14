@@ -10,7 +10,6 @@
 
 /**
  *
- * @author niko
  */
 class PhpResizer_PhpResizer {
 
@@ -49,9 +48,8 @@ class PhpResizer_PhpResizer {
             throw new PhpResizer_PhpResizerException('path '.$this->_config['cacheDir'].' is not exist or nor writible or no executable');
         }
 
-        require_once ('engine/'.$this->_config['engine'].'.php');
-
-        $this->enginer = new $this->_config['engine']();
+        $class = 'PhpResizer_Engine_' . $this->_config['engine'];
+        $this->enginer = new $class();
     }
 
 

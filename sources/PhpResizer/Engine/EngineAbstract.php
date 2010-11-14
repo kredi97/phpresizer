@@ -111,8 +111,9 @@ abstract class PhpResizer_Engine_EngineAbstract
         }
 
         $ext = substr(
-            $this->_params['path'], strlen($this->_params['path']) - 4);
-        if (!in_array(strtolower($ext, $this->types))) {
+            $this->params['path'], strlen($this->params['path']) - 3);
+
+        if (!in_array(strtolower($ext), $this->types)) {
             throw new PhpResizer_Exception_IncorrectExtension('extension  '.$ext.' is not allowed');
         }
     }

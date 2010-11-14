@@ -23,7 +23,7 @@ class PhpResizer_Autoloader
      */
     public function __construct()
     {
-        $this->_includePath = dirname(__FILE__);
+        $this->_includePath = realpath(dirname(__FILE__) . '/../');
         spl_autoload_register(array($this, 'autoload'));
     }
 

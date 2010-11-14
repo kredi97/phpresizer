@@ -211,7 +211,7 @@ class PhpResizer_PhpResizer {
     {
         $allowedExtenstions = array('png');
         $defaultExtension = 'jpg';
-        $ext = substr($path, strlen($path) - 3);
+        $ext = substr($filename, strlen($filename) - 3);
 
         if (in_array($ext, $allowedExtenstions)) {
             return $ext;

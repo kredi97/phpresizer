@@ -69,8 +69,9 @@ class PhpResizer_PhpResizerTest extends PHPUnit_Framework_TestCase
     public function providerFiles()
     {
         return array(
-        	array('normal.bmp'), array('normal.jpg'),
-        	array('normalCMYK.jpg'), array('normal.gif'));
+        	array('normal.bmp'), array('normal.jPg'),
+        	array('normalCMYK.jpg'), array('normal.gif'),
+        	array('normal.png'));
     }
 
     /**

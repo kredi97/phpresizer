@@ -82,9 +82,8 @@ class PhpResizer_PhpResizer {
         if ($this->_useCache) {
             $this->_validateCacheDir();
         }
-        if (isset($this->_config['engine'])) {
-            $this->useEngine($this->_config['engine']);
-        }
+        
+        $this->_engine = $this->_createEngine($this->_config['engine']);
     }
 
     /**
@@ -211,7 +210,7 @@ class PhpResizer_PhpResizer {
     {
         $allowedExtenstions = array('png');
         $defaultExtension = 'jpg';
-        $ext = substr($filename, strlen($filename) - 3);
+        $ext = substr($filename,-3);
 
         if (in_array($ext, $allowedExtenstions)) {
             return $ext;
@@ -234,15 +233,13 @@ class PhpResizer_PhpResizer {
         }
 
         $hash = md5(serialize($options).$path);
-        $cacheFilePath = $this->_cacheDir . '/' . substr($hash, 0,2)
-            . '/' . substr($hash, 2, 2) . '/' . substr($hash, 4) . '.'
+        $cacheFilePath = $this->_cacheDir . '/' . substr($hash, 0,1)
+            . '/' . substr($hash, 1, 1) . '/' . substr($hash, 2) . '.'
             . $this->getExtension($path);
 
-        if (!is_dir(dirname(dirname($cacheFilePath)))){
-            mkdir(dirname(dirname($cacheFilePath)));
-        }
-        if (!is_dir(dirname($cacheFilePath))){
-            mkdir(dirname($cacheFilePath));
+
+		if (!is_dir(dirname($cacheFilePath))){
+            mkdir(dirname($cacheFilePath),0777,true);
         }
 
         return $cacheFilePath;
@@ -291,16 +288,16 @@ class PhpResizer_PhpResizer {
         if (isset($this->_checkEtag)) {
             return $this->_checkEtag;
         }
+        
         if (isset($_SERVER['HTTP_IF_NONE_MATCH'])
             && md5_file($filename) == $_SERVER['HTTP_IF_NONE_MATCH'])
         {
-            $this->_checkEtag = true;
-            return true;
-
-        } else {
-            $this->_checkEtag = false;
-            return false;
+        	$_checkEtag = true;
+        	return true;
         }
+        
+        $this->_checkEtag = false;
+        return false;
     }
 
     /**
@@ -309,16 +306,9 @@ class PhpResizer_PhpResizer {
      */
     public function clearCache($ttl = self::DEFAULT_CACHE_TTL)
     {
+    	$ttl = (int) $ttl; 
         $command = "find {$this->_config['cacheDir']} \! -type d -amin +{$ttl} -exec  rm -v '{}' ';'";
         passthru($command, $result);
         return $result;
-    }
-
-    /**
-     * @param string $name
-     */
-    public function useEngine($name)
-    {
-        $this->_engine = $this->_createEngine($name);
     }
 }

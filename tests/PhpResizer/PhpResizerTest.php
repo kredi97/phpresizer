@@ -16,40 +16,29 @@ class PhpResizer_PhpResizerTest extends PHPUnit_Framework_TestCase
     /**
      * @var string
      */
-    protected $_filesDir;
+    protected static $_filesDir;
 
     /**
      * @var string
      */
-    protected $_cacheDir;
+    protected static $_cacheDir;
     
-    /**
-     * @var PhpResizer_PhpResizer
-     */
-    protected $_fixture;
-
     /**
      *
      */
-    public function setUp()
+    public static function setUpBeforeClass()
     {
         $path = dirname(__FILE__);
-        $this->_filesDir = $path . DIRECTORY_SEPARATOR . 'files';
-
-        $this->_cacheDir = $path . DIRECTORY_SEPARATOR . 'cache';
-
-        $options = array(
-            'cacheDir' => $this->_cacheDir,
-        );
-        $this->_fixture = new PhpResizer_PhpResizer($options);
+        self::$_filesDir = $path . DIRECTORY_SEPARATOR . 'files';
+        self::$_cacheDir = $path . DIRECTORY_SEPARATOR . 'cache';
     }
 
 	/**
 	 * 
 	 */
-    public function tearDown() 
+    public static function tearDownAfterClass() 
     {
-		$this->_cleanDir($this->_cacheDir);
+		self::_cleanDir(self::$_cacheDir);
     }
     
     /**
@@ -57,7 +46,7 @@ class PhpResizer_PhpResizerTest extends PHPUnit_Framework_TestCase
      *
      * @param string $dir
      */
-    protected function _cleanDir($dir)
+    protected static function _cleanDir($dir)
     {
         $command = "rm -rf {$dir}/*";
         exec($command);
@@ -88,24 +77,28 @@ class PhpResizer_PhpResizerTest extends PHPUnit_Framework_TestCase
             'returnOnlyPath' => true
         );
 
-        $ext = $this->_fixture->getExtension($file);
-        $filename = $this->_filesDir . DIRECTORY_SEPARATOR . $file;
-        $cache = $this->_fixture->generatePath($filename, $options);
-
-        foreach ($this->_getAvailableEngines() as $engine) {
-            $this->_fixture->useEngine($engine);
-            
+        $filename = self::$_filesDir . DIRECTORY_SEPARATOR . $file;
+        
+        foreach ($this->_getAvailableEngines() as $engine) 
+        {
+        	$phpReszierOptions = array(
+            	'cacheDir' => self::$_cacheDir,
+				'engine'=>$engine
+        	);
+        	
             try {
-            	$this->_fixture->resize($filename, $options);
+            	$phpResizerObj= new PhpResizer_PhpResizer($phpReszierOptions);
+            	$cacheFile =$phpResizerObj->resize($filename, $options);
             }catch(PhpResizer_Exception_IncorrectExtension $e){
             	echo 'engine:' . $engine . ' - ' . $e->getMessage().PHP_EOL;
             	return;
             }
-
-            list($width, $height) = getimagesize($cache);
-            
-            $this->assertTrue(file_exists($cache)
+           
+            $this->assertTrue(file_exists($cacheFile)
                 , 'Наличие файла в кэше (движок:'.$engine.') (файл:'.$filename.')');
+                
+            list($width, $height) = getimagesize($cacheFile);
+                            
             $this->assertEquals($width, $options['width']
                 , 'ширина файла (движок:'.$engine.') (файл:'.$file.')');
             $this->assertEquals($height, $options['height']
@@ -119,7 +112,7 @@ class PhpResizer_PhpResizerTest extends PHPUnit_Framework_TestCase
     private function _getAvailableEngines()
     {
         $engines = array();
-        $reflection = new ReflectionClass($this->_fixture);
+        $reflection = new ReflectionClass('PhpResizer_PhpResizer');
         foreach ($reflection->getConstants() as $const=>$value) {
             if (0 === strpos($const, 'ENGINE')) {
                 $engines[] = $value;

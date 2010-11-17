@@ -24,7 +24,7 @@ class PhpResizer_PhpResizer {
     const EXC_ENABLE_CACHE =
         'For "returnOnlyPath" option set "cache" options as TRUE';
 
-    const DEFAULT_CACHE_TTL = 10080;
+    const DEFAULT_CACHE_TTL = 10080; //minutes
 
     /**
      * @var array
@@ -185,7 +185,7 @@ class PhpResizer_PhpResizer {
     {
         $cacheFile = null;
         if ($this->_useCache) {
-            $cacheFile = $this->generatePath($path,$options);
+            $cacheFile = $this->generatePath($path, $options);
             if (file_exists($cacheFile) && getimagesize($cacheFile) &&
                 filemtime($cacheFile)>=filemtime($path)) {
                     return $this->_returnImageOrPath($cacheFile, $options);
@@ -210,7 +210,7 @@ class PhpResizer_PhpResizer {
     {
         $allowedExtenstions = array('png');
         $defaultExtension = 'jpg';
-        $ext = substr($filename,-3);
+        $ext = strtolower(substr($filename,-3));
 
         if (in_array($ext, $allowedExtenstions)) {
             return $ext;
@@ -302,13 +302,14 @@ class PhpResizer_PhpResizer {
 
     /**
      * @param int $ttl
-     * @return string
+     * @return array
      */
     public function clearCache($ttl = self::DEFAULT_CACHE_TTL)
     {
-    	$ttl = (int) $ttl; 
-        $command = "find {$this->_config['cacheDir']} \! -type d -amin +{$ttl} -exec  rm -v '{}' ';'";
-        passthru($command, $result);
-        return $result;
+    	$ttl = (int) $ttl;
+    	$dir = escapeshellcmd($this->_config['cacheDir']);
+        $command = "find {$dir} \! -type d -amin +{$ttl} -exec  rm -v '{}' ';'";
+        exec($command, $stringOutput);
+        return $stringOutput;
     }
 }

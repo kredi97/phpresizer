@@ -22,14 +22,13 @@ class PhpResizer_Engine_ImageMagic extends PhpResizer_Engine_EngineAbstract  {
 
     protected function _checkEngine () {
         $command = $this->convertPath.' -version';
-        ob_start();
-            passthru($command);
-        $stringOutput = ob_get_clean();
+       
+        exec($command, $stringOutput);
 
-        $resultSearch = strpos($stringOutput,'ImageMagick');
-
-        if ($resultSearch===false) {
-            throw new PhpResizer_Exception_Basic('Engine '.__CLASS__.' is not avalible');
+        if (false === strpos($stringOutput[0],'ImageMagick')) {
+            throw new PhpResizer_Exception_Basic(
+            	sprintf(self::EXC_ENGINE_IS_NOT_AVALIBLE,
+            	PhpResizer_PhpResizer::ENGINE_IMAGEMAGICK));
         }
     }
 
@@ -38,11 +37,13 @@ class PhpResizer_Engine_ImageMagic extends PhpResizer_Engine_EngineAbstract  {
         $size = $this->params['size'];
         $path = $this->params['path'];
         $cacheFile = $this->params['cacheFile'];
+        
         extract($this->calculateParams());
+        
              $command = $this->convertPath
-                 .' '.$this->addSlashe($path).' -crop'
-                 .' '.$srcWidth.'x'.$srcHeight.'+'.$srcX.'+'.$srcY
-                 .' -resize '.$dstWidth.'x'.$dstHeight
+                 . ' ' . escapeshellcmd($path) . ' -crop'
+                 . ' ' . $srcWidth.'x'.$srcHeight . '+' . $srcX . '+' . $srcY
+                 . ' -resize ' . $dstWidth . 'x' . $dstHeight
                  .' -sharpen 1x10'
                  //.' -colorspace GRAY'
                 //.' -posterize 32'
@@ -51,7 +52,7 @@ class PhpResizer_Engine_ImageMagic extends PhpResizer_Engine_EngineAbstract  {
                 //.' -equalize'
                 //.' -normalize'
                 //.' -gamma 1.2'
-                 .' -quality 75'
+                 . ' -quality 85'
                  //.' -blur 2x4'
                  //.' -unsharp 0.2x0+300+0'
                 //.' -font arial.ttf -fill white -box "#000000100" -pointsize 12 -annotate +0+10 "  '.$path.' "'
@@ -60,9 +61,9 @@ class PhpResizer_Engine_ImageMagic extends PhpResizer_Engine_EngineAbstract  {
                 //.' -implode 4'
                 //.' -solarize 10' ???
                 //.' -spread 5'
-                 .' '.$this->addSlashe($cacheFile);
+                 . ' ' . escapeshellcmd($cacheFile);
 
-            exec($command);
+			exec($command);
             return true;
     }
 }

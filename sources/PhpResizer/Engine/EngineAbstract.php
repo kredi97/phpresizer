@@ -14,6 +14,9 @@
  */
 abstract class PhpResizer_Engine_EngineAbstract
 {
+	
+	const EXC_BAD_PARAM ='param %s is bad';
+	const EXC_ENGINE_IS_NOT_AVALIBLE ='engine %s is not avalible';
     /**
      * @var array
      */
@@ -48,20 +51,22 @@ abstract class PhpResizer_Engine_EngineAbstract
     }
 
     /**
+     * Merge params and check 
      * @param array $params
+     * @throws PhpResizer_Exception_Basic
      */
-    protected function getParams(array $params)
+    protected function getParams(array $inputParams)
     {
         $defaultOptions=array(
-            'width' => $params['size'][0],
-            'height' => $params['size'][1],
+            'width' => $inputParams['size'][0],
+            'height' => $inputParams['size'][1],
             'aspect' => true,
             'crop' => 100,
             'size' => null, //array, result working function getimagesize()
             'cacheFile' => null,
             'path' => null
         );
-        $this->params = array_merge($defaultOptions, $params);
+        $this->params = array_merge($defaultOptions, $inputParams);
         $this->params['crop'] = (int)$this->params['crop'];
         $this->params['width'] = (int)$this->params['width'];
         $this->params['height'] = (int)$this->params['height'];
@@ -75,66 +80,50 @@ abstract class PhpResizer_Engine_EngineAbstract
      */
     protected function _checkParams()
     {
-
-        if (1 > $this->params['width']
+        if ($this->params['width'] < 1 
             || $this->maxWidth < $this->params['width'])
         {
             $this->params['width'] = $this->maxWidth;
         }
 
-        if (1 > $this->params['height']
+        if ($this->params['height'] < 1 
             || $this->maxHeight < $this->params['height'])
         {
             $this->params['height'] = $this->maxHeight;
         }
 
-        if (0 >= $this->params['crop']
+        if ($this->params['crop'] <= 0  
             || $this->_defaultCropSize < $this->params['crop'])
         {
             $this->params['crop'] = $this->_defaultCropSize;
         }
 
         if (!is_string($this->params['path'])) {
-            throw new PhpResizer_Exception_Basic('path is not string');
+            throw new PhpResizer_Exception_Basic(sprintf(self::EXC_BAD_PARAM,'path'));
         }
 
         if (!$this->params['cacheFile']
             || !is_string($this->params['cacheFile']))
         {
-            throw new PhpResizer_Exception_Basic('cacheFile is not string');
+            throw new PhpResizer_Exception_Basic(sprintf(self::EXC_BAD_PARAM,'cacheFile'));
         }
 
         if (!$this->params['size']
             ||!is_array($this->params['size']))
         {
-            throw new PhpResizer_Exception_Basic('size is not array');
+            throw new PhpResizer_Exception_Basic(sprintf(self::EXC_BAD_PARAM,'size'));
         }
 
-        $ext = substr(
-            $this->params['path'], strlen($this->params['path']) - 3);
+        $ext = strtolower(substr($this->params['path'], -3));
 
-        if (!in_array(strtolower($ext), $this->types)) {
+        if (!in_array($ext, $this->types)) {
             throw new PhpResizer_Exception_IncorrectExtension('extension  '.$ext.' is not allowed');
         }
     }
 
     /**
-     * @param string $path
-     * @return string
-     */
-    protected function addSlashe($path)
-    {
-        $search = array(' ', '(', ')');
-
-        foreach($search as $val) {
-            $path = str_replace($val, '\\' . $val, $path);
-        }
-
-        return $path;
-    }
-
-    /**
-     * @return boolean
+     * @return void
+     * @throws PhpResizer_Exception_Basic
      */
     abstract protected function _checkEngine();
 

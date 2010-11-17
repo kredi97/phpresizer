@@ -21,14 +21,13 @@ class PhpResizer_Engine_GraphicsMagick extends PhpResizer_Engine_EngineAbstract 
 
     protected function _checkEngine () {
         $command = $this->gmPath.' version';
-        ob_start();
-            passthru($command);
-        $stringOutput = ob_get_clean();
+        
+        exec($command, $stringOutput);
 
-        $resultSearch = strpos($stringOutput,'GraphicsMagick');
-
-        if ($resultSearch===false) {
-            throw new PhpResizer_Exception_Basic('Engine '.__CLASS__.' is not avalible');
+        if (false === strpos($stringOutput[0],'GraphicsMagick')) {
+			throw new PhpResizer_Exception_Basic(
+            	sprintf(self::EXC_ENGINE_IS_NOT_AVALIBLE,
+            	PhpResizer_PhpResizer::ENGINE_GRAPHIKSMAGICK));
         }
     }
 
@@ -40,13 +39,14 @@ class PhpResizer_Engine_GraphicsMagick extends PhpResizer_Engine_EngineAbstract 
         $cacheFile = $this->params['cacheFile'];
 
         extract($this->calculateParams());
+        
              $command = $this->gmPath.' convert'
-                 .' '.$this->addSlashe($path).' -crop'
-                 .' '.$srcWidth.'x'.$srcHeight.'+'.$srcX.'+'.$srcY
-                 .' -resize '.$dstWidth.'x'.$dstHeight
-                 .' -sharpen 1x10'
-                 .' -quality 75'
-                 .' '.$this->addSlashe($cacheFile);
+                 . ' ' . escapeshellcmd($path) . ' -crop'
+                 . ' ' . $srcWidth . 'x' . $srcHeight . '+' . $srcX . '+' . $srcY
+                 . ' -resize ' . $dstWidth . 'x' . $dstHeight
+                 . ' -sharpen 1x10'
+                 . ' -quality 75'
+                 . ' ' . escapeshellcmd($cacheFile);
 
             exec($command);
         return true;

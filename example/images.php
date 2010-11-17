@@ -51,6 +51,6 @@ try {
 	);
 	$resizer->resize(dirname(__FILE__).'/'.$file, $opt);
 }catch(Exception $e) {
-
+	echo $e->getMessage();
 }
 

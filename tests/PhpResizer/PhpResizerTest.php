@@ -101,7 +101,7 @@ class PhpResizer_PhpResizerTest extends PHPUnit_Framework_TestCase
                             
             $this->assertEquals($width, $options['width']
                 , 'ширина файла (движок:'.$engine.') (файл:'.$file.')');
-            $this->assertEquals($height, $options['height']
+            $this->assertTrue($options['height'] - 1 <= $height && $height <= $options['height'] + 1
                 ,'высота файла (движок:'.$engine.') (файл:'.$file.')');
         }
     }
@@ -118,6 +118,7 @@ class PhpResizer_PhpResizerTest extends PHPUnit_Framework_TestCase
                 $engines[] = $value;
             }
         }
+        
         return $engines;
     }
 }

@@ -49,7 +49,7 @@ class PhpResizer_PhpResizerTest extends PHPUnit_Framework_TestCase
     protected static function _cleanDir($dir)
     {
         $command = "rm -rf {$dir}/*";
-        exec($command);
+        //exec($command);
     }
 
     /**
@@ -73,8 +73,7 @@ class PhpResizer_PhpResizerTest extends PHPUnit_Framework_TestCase
             'width'  => 100,
             'height' => 150,
             'crop'   => 75,
-            'aspect' => false,
-            'returnOnlyPath' => true
+            'aspect' => false
         );
 
         $filename = self::$_filesDir . DIRECTORY_SEPARATOR . $file;
@@ -88,7 +87,7 @@ class PhpResizer_PhpResizerTest extends PHPUnit_Framework_TestCase
         	
             try {
             	$phpResizerObj= new PhpResizer_PhpResizer($phpReszierOptions);
-            	$cacheFile =$phpResizerObj->resize($filename, $options);
+            	$cacheFile =$phpResizerObj->resize($filename, $options, true);
             }catch(PhpResizer_Exception_IncorrectExtension $e){
             	echo 'engine:' . $engine . ' - ' . $e->getMessage().PHP_EOL;
             	return;
@@ -100,9 +99,9 @@ class PhpResizer_PhpResizerTest extends PHPUnit_Framework_TestCase
             list($width, $height) = getimagesize($cacheFile);
                             
             $this->assertEquals($width, $options['width']
-                , 'ширина файла (движок:'.$engine.') (файл:'.$file.')');
+                , 'ширина файла (движок:'.$engine.') (файл:'.$cacheFile.')');
             $this->assertTrue($options['height'] - 1 <= $height && $height <= $options['height'] + 1
-                ,'высота файла (движок:'.$engine.') (файл:'.$file.')');
+                ,'высота файла (движок:'.$engine.') (файл:'.$cacheFile.')');
         }
     }
 

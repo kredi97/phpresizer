@@ -132,8 +132,16 @@ class PhpResizer_PhpResizer {
      * @param array $options
      * @throws PhpResizer_Exception_Basic
      */
-    public function resize($filename, array $options = array())
+    public function resize($filename, array $options = array(),$returnOnlyPath = false)
     {
+    	$this->_options = $options;
+    	$this->_returnOnlyPath = (bool) $returnOnlyPath;
+    	
+        if ($this->_returnOnlyPath && !$this->_useCache)
+        {
+            throw new PhpResizer_Exception_Basic(self::EXC_ENABLE_CACHE);
+        } 
+        
         if (!is_readable($filename)) {
             return $this->_return404();
 
@@ -142,40 +150,25 @@ class PhpResizer_PhpResizer {
             throw new PhpResizer_Exception_Basic($message);
         }
 
-        if (!$options) {
+        if (!$this->_options) {
             $this->_returnImageOrPath($filename);
         }
 
-        if (isset($options['returnOnlyPath']) && $options['returnOnlyPath']
-            && $this->_useCache)
-        {
-            unset($options['returnOnlyPath']);
-            $this->_returnOnlyPath = true;
-
-        } else if (isset($options['returnOnlyPath'])
-            && $options['returnOnlyPath'])
-        {
-            throw new PhpResizer_Exception_Basic(self::EXC_ENABLE_CACHE);
-        }
-
-        $cacheFile = $this->_getCacheFileName($filename, $options);
-
-        $options += array(
+        $this->_options += array(
             'path' => $filename,
-            'size' => $size,
-            'cacheFile' => $cacheFile,
+			'cacheFile' => $this->_getCacheFileName($filename),
+            'size' => $size
         );
 
-        if (!$this->_engine->resize($options)) {
+        if (!$this->_engine->resize($this->_options)) {
             $this->_return404();
         }
 
         if (!$this->_useCache){
-            $this->_returnImageOrPath($cacheFile, $options);
-            unlink($cacheFile);
-
+            $this->_returnImageOrPath($this->_options['cacheFile']);
+            unlink($this->_options['cacheFile']);
         } else {
-            return $this->_returnImageOrPath($cacheFile, $options);
+            return $this->_returnImageOrPath($this->_options['cacheFile']);
         }
 
     }
@@ -187,9 +180,11 @@ class PhpResizer_PhpResizer {
      * @param $options
      * @return string
      */
-    protected function _getCacheFileName ($path, $options)
+    protected function _getCacheFileName ($path)
     {
         $cacheFile = null;
+        $options = $this->_options;
+        
         if ($this->_useCache) {
             $cacheFile = $this->generatePath($path, $options);
             if (file_exists($cacheFile) && getimagesize($cacheFile) &&
@@ -231,7 +226,7 @@ class PhpResizer_PhpResizer {
      * @param array $options
      * @return string
      */
-    public function generatePath($path, array $options)
+    protected function generatePath($path, array $options)
     {
 
         if (isset($options['returnOnlyPath'])) {

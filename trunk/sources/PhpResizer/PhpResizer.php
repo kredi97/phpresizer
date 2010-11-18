@@ -164,17 +164,12 @@ class PhpResizer_PhpResizer {
             $this->_return404();
         }
 
-        if (!$this->_useCache){
-            $this->_returnImageOrPath($this->_options['cacheFile']);
-            unlink($this->_options['cacheFile']);
-        } else {
-            return $this->_returnImageOrPath($this->_options['cacheFile']);
-        }
-
+		return $this->_returnImageOrPath($this->_options['cacheFile']);
     }
 
     /**
-     * Return image if cacheFile is valid and exist or return path to newcacheFile
+     * generete CacheFileName and if cacheFile is exist and valid - return image
+     * else return path to uncreated newcacheFile
      *
      * @param $path
      * @param $options
@@ -186,10 +181,12 @@ class PhpResizer_PhpResizer {
         $options = $this->_options;
         
         if ($this->_useCache) {
-            $cacheFile = $this->generatePath($path, $options);
+        	
+            $cacheFile = $this->generatePath($path);
+            
             if (file_exists($cacheFile) && getimagesize($cacheFile) &&
                 filemtime($cacheFile)>=filemtime($path)) {
-                    return $this->_returnImageOrPath($cacheFile, $options);
+                	return $this->_returnImageOrPath($cacheFile);
 
             } else if (file_exists($cacheFile)) {
                 unlink($cacheFile);
@@ -226,14 +223,9 @@ class PhpResizer_PhpResizer {
      * @param array $options
      * @return string
      */
-    protected function generatePath($path, array $options)
+    protected function generatePath($path)
     {
-
-        if (isset($options['returnOnlyPath'])) {
-            unset ($options['returnOnlyPath']);
-        }
-
-        $hash = md5(serialize($options).$path);
+        $hash = md5(serialize($this->_options).$path);
         $cacheFilePath = $this->_cacheDir . '/' . substr($hash, 0,1)
             . '/' . substr($hash, 1, 1) . '/' . substr($hash, 2) . '.'
             . $this->getExtension($path);
@@ -251,6 +243,7 @@ class PhpResizer_PhpResizer {
      */
     protected function _returnImageOrPath($filename)
     {
+   	
         if ($this->_returnOnlyPath) {
             return $filename;
         }
@@ -265,6 +258,9 @@ class PhpResizer_PhpResizer {
             readfile($filename);
         }
 
+		if (!$this->_useCache){
+            unlink($filename);
+		}
         exit;
     }
 

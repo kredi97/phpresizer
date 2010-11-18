@@ -49,7 +49,7 @@ class PhpResizer_PhpResizerTest extends PHPUnit_Framework_TestCase
     protected static function _cleanDir($dir)
     {
         $command = "rm -rf {$dir}/*";
-        //exec($command);
+        exec($command);
     }
 
     /**

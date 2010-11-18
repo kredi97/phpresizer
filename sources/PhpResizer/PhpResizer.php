@@ -24,7 +24,12 @@ class PhpResizer_PhpResizer {
     const EXC_ENABLE_CACHE =
         'For "returnOnlyPath" option set "cache" options as TRUE';
 
-    const DEFAULT_CACHE_TTL = 10080; //minutes
+    /**
+     * Default cache image time to live in minutes
+     *
+     * @var int
+     */
+    const DEFAULT_CACHE_TTL = 10080;
 
     /**
      * @var array
@@ -82,7 +87,7 @@ class PhpResizer_PhpResizer {
         if ($this->_useCache) {
             $this->_validateCacheDir();
         }
-        
+
         $this->_engine = $this->_createEngine($this->_config['engine']);
     }
 
@@ -128,7 +133,7 @@ class PhpResizer_PhpResizer {
      */
     public function resize($filename, array $options = array())
     {
-    	if (!is_readable($filename)) {
+        if (!is_readable($filename)) {
             return $this->_return404();
 
         } else if (false === ($size = @getimagesize($filename))) {
@@ -171,7 +176,7 @@ class PhpResizer_PhpResizer {
         } else {
             return $this->_returnImageOrPath($cacheFile, $options);
         }
-                	        	 
+
     }
 
     /**
@@ -238,7 +243,7 @@ class PhpResizer_PhpResizer {
             . $this->getExtension($path);
 
 
-		if (!is_dir(dirname($cacheFilePath))){
+        if (!is_dir(dirname($cacheFilePath))){
             mkdir(dirname($cacheFilePath),0777,true);
         }
 
@@ -288,14 +293,14 @@ class PhpResizer_PhpResizer {
         if (isset($this->_checkEtag)) {
             return $this->_checkEtag;
         }
-        
+
         if (isset($_SERVER['HTTP_IF_NONE_MATCH'])
             && md5_file($filename) == $_SERVER['HTTP_IF_NONE_MATCH'])
         {
-        	$_checkEtag = true;
-        	return true;
+            $_checkEtag = true;
+            return true;
         }
-        
+
         $this->_checkEtag = false;
         return false;
     }
@@ -306,8 +311,8 @@ class PhpResizer_PhpResizer {
      */
     public function clearCache($ttl = self::DEFAULT_CACHE_TTL)
     {
-    	$ttl = (int) $ttl;
-    	$dir = escapeshellcmd($this->_config['cacheDir']);
+        $ttl = (int) $ttl;
+        $dir = escapeshellcmd($this->_config['cacheDir']);
         $command = "find {$dir} \! -type d -amin +{$ttl} -exec  rm -v '{}' ';'";
         exec($command, $stringOutput);
         return $stringOutput;

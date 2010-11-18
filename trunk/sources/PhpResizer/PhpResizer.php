@@ -32,11 +32,6 @@ class PhpResizer_PhpResizer {
     const DEFAULT_CACHE_TTL = 10080;
 
     /**
-     * @var array
-     */
-    protected $_config;
-
-    /**
      * @var bool
      */
     protected $_returnOnlyPath = false;
@@ -67,11 +62,16 @@ class PhpResizer_PhpResizer {
     protected $_useCache = false;
 
     /**
+     * @var bool
+     */
+    protected $_cacheBrowser = false;
+
+    /**
      * @param array $options
      */
     public function __construct(array $options = array())
     {
-        $this->_config = array_merge(array (
+        $config = array_merge(array (
             'engine' => self::ENGINE_GD2,
             'cache' => true,
             'cacheBrowser' => true,
@@ -79,16 +79,17 @@ class PhpResizer_PhpResizer {
             'tmpDir' => '/tmp/'
         ), $options);
 
-        $this->_useCache = (bool)$this->_config['cache'];
-        $this->_tmpDir = $this->_config['tmpDir'];
-        $this->_cacheDir = $this->_config['cacheDir'];
+        $this->_useCache = (bool)$config['cache'];
+        $this->_tmpDir = $config['tmpDir'];
+        $this->_cacheDir = $config['cacheDir'];
+        $this->_cacheBrowser = (bool)$config['cacheBrowser'];
 
         $this->_validateTmpDir();
         if ($this->_useCache) {
             $this->_validateCacheDir();
         }
 
-        $this->_engine = $this->_createEngine($this->_config['engine']);
+        $this->_engine = $this->_createEngine($config['engine']);
     }
 
     /**
@@ -287,7 +288,7 @@ class PhpResizer_PhpResizer {
      */
     protected function _checkEtag($filename)
     {
-        if (!$this->_config['cacheBrowser']) {
+        if (!$this->_cacheBrowser) {
             return false;
         }
         if (isset($this->_checkEtag)) {
@@ -312,7 +313,7 @@ class PhpResizer_PhpResizer {
     public function clearCache($ttl = self::DEFAULT_CACHE_TTL)
     {
         $ttl = (int) $ttl;
-        $dir = escapeshellcmd($this->_config['cacheDir']);
+        $dir = escapeshellcmd($this->_cacheDir);
         $command = "find {$dir} \! -type d -amin +{$ttl} -exec  rm -v '{}' ';'";
         exec($command, $stringOutput);
         return $stringOutput;

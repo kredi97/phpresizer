@@ -258,7 +258,10 @@ class PhpResizer_PhpResizer {
             readfile($filename);
         }
 
-        if (!$this->_useCache and $this->_options['cacheFile']==$filename){
+    	if (!$this->_useCache 
+			&& isset($this->_options['cacheFile'])
+			&& $this->_options['cacheFile']==$filename)
+		{
             unlink($filename);
 		}
         exit;

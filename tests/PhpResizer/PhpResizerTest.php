@@ -99,9 +99,9 @@ class PhpResizer_PhpResizerTest extends PHPUnit_Framework_TestCase
             list($width, $height) = getimagesize($cacheFile);
                             
             $this->assertEquals($width, $options['width']
-                , 'ширина файла (движок:'.$engine.') (файл:'.$cacheFile.')');
+                , 'ширина изображения (движок:'.$engine.') (файл:'.$cacheFile.')');
             $this->assertTrue($options['height'] - 1 <= $height && $height <= $options['height'] + 1
-                ,'высота файла (движок:'.$engine.') (файл:'.$cacheFile.')');
+                ,'высота изображения (движок:'.$engine.') (файл:'.$cacheFile.')');
         }
     }
 

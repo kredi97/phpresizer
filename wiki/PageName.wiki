@@ -41,3 +41,112 @@ http://example.com/testimage.jpg?type=avatar
 http://example.com/images.php?file=testimage.jpg&type=avatar
 
 <i>Примечание: для обработки изображний можно использовать какой-нибудь метод контроллера вашего фремворка, но делать это не рекомендую из-за не нужной дополнительной нагрузки на сервер </i>
+
+
+<h4>Определяем логику обработки изображения</h4>
+images.php
+
+<code>
+<?php
+
+$file = (isset($_GET["file"])) ? $_GET["file"] : ""; 
+
+$options = array (
+    "avatar"=>array(
+        "width"=>100, // желаемая ширина аватарки
+        "height"=>100, // желаемая высота аватарки
+        /* пропорции не сохраняем, 
+           если исходное изображение будет прямоугольником то 
+           подрежим выступающие края до квадрата */
+        "aspect"=>false,
+        //возьмём от всего изображения 95% и увеличим этот фрагмент до наших 100х100 px 
+        "crop"=>95, 
+    ),
+        // настройки для генерации предпросмотра изображения
+    "preview"=>array(
+        "width"=>400,
+        "height"=>500,
+        "aspect"=>true,
+        "crop"=>100,
+    )
+);
+
+if (isset($_GET["type"]) AND isset($options[$_GET["type"]])) {
+    $opt =  $options[$_GET["type"]];
+}else{
+    $opt = array();
+}
+
+/*
+На этом этапе, при необходимости, проверяем разрешено ли пользователю 
+просматривать изображение. В данном примере это пропущено.   
+*/
+
+
+require "/PhpResizer/Autoloader.php";
+new PhpResizer_Autoloader(); 
+
+try {
+	$resizer = new PhpResizer_PhpResizer(array (
+		"engine"=>PhpResizer_PhpResizer::ENGINE_IMAGEMAGICK,
+		"cache"=>true,
+		"cacheDir"=>dirname(__FILE__)."/cache/",
+		"cacheBrowser"=>true,
+		)
+	);
+    // Выполняем ужатие изображение.
+    // Третий параметр отвечает за то чтоб отдавать нам только абсолютный путь к ужатому файлу (true)
+    // или вернуть изображение в браузер
+    // а абсолютный путь к ужатому изображению
+    // здесь следовало бы поставить true 
+	$resizer->resize(dirname(__FILE__)."/".$file, $opt, false);
+}catch(Exception $e) {
+	echo $e->getMessage();
+} 
+</code>
+
+
+<h4>Параметры передаваемые в конструктор new PhpResizer_PhpResizer()</h4>
+
+    * engine - движок используемый для ужатия. Доступные значения:
+          o PhpResizer_PhpResizer::ENGINE_GD2 (выбрано по умолчанию)- GD (Graphics Draw) library
+          o PhpResizer_PhpResizer::ENGINE_IMAGEMAGICK - ImageMagick
+          o PhpResizer_PhpResizer::ENGINE_GRAPHIKSMAGICK - GraphicsMagick
+    * cache - управление кешированием ужатых изображений на сервере. Допустимые значения: true|false по умочанию true
+    * cacheDir - абсолютный путь к папке где будут храниться закешированные ужатые файлы. По умочанию /tmp/resizerCache/
+    * cacheBrowser - управление кеширования ужатых изображений в клиентском браузере. Допустимые значения: true|false
+
+
+<h2>Очиста кеша</h2>
+
+В данном примере мы удаляем из папки "/var/www/resizer/cache/" все файлы к которым никто не обращался уже целую неделю. (Внимание!!!, не ошибись с путём к папке)
+<code>
+<?php
+$resizer = new PhpResizer_PhpResizer(array (
+"cacheDir"=>"/var/www/resizer/cache/"
+)
+);
+$resizer->clearCache(60*24*7); 
+</code>
+
+<h2>Вопрос - ответ</h2>
+
+<h4>Хочу что изображения сервер отдавал непосредственно, а не через через php-скрипт?</h4>
+
+Нам понадобится небольшой класс - ImageHelper, на входе метод получает путь к файлу - оригиналу, и параметр определяющий настройки пережатия. В Хелпере используя библиотеку PhpResizer выполняем пережатие изображения, в метод resize не забываем передать третий параметр true С таким параметром библиотека вернёт абсолютный путь к файлу в кеше например /var/www/site/design/images/PhpResizerCache/4k/33sdfsdf4wesd34rsf43.jpg Используя функции обработки строк превращаем /var/www/site/design/images/PhpResizerCache/4k/33sdfsdf4wesd34rsf43.jpg в нечто похожее на http://example.com/design/images/PhpResizerCache/4k/33sdfsdf4wesd34rsf43.jpg У этого способа есть недостаток: мы не можем контролировать доступ к ужатым изображения пользователей.
+
+Вот так выглядело бы использование хелпера при генерации содержимого страницы:
+
+<code>
+<img src="<?php echo ImageHelper::resize("user134.jpg","avatar"); ?>" alt="фотография"/>
+</code>
+
+
+Вот что увидет пользователь:
+<code>
+<img src="http://example.com/design/images/as/sd5fs3df4d34ssf4gf435o.jpg" alt="моя фотография"/>
+</code>
+
+<h4>Я не хочу заставлять пользователя ждать пока PhpResizer выполнит пережатия изображения.</h4>
+
+Здесь на помощь придёт crontab Сразу как только появляется изображение для которого неминуемо придётся сгенерировать несколько вариантов, мы добавляем задачу в какой-нибудь стек, очередь. Раз в минуту crontab будет проверять не появилось ли что в очереди, и если появилось запустится скрипт в котором мы и создадим все необходимые файлы в кеше. Когда пользователь обратится за ужатым файлом, он уже будет подготовлен и лежать в кеше. 

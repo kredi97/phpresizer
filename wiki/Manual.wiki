@@ -114,7 +114,9 @@ try {
  PhpResizer_PhpResizer::ENGINE_GRAPHIKSMAGICK - GraphicsMagick
 
     <b>cache</b> - управление кешированием ужатых изображений на сервере. Допустимые значения: true|false по умочанию true
+
     <b>cacheDir</b> - абсолютный путь к папке где будут храниться закешированные ужатые файлы. По умочанию /tmp/resizerCache/
+
     <b>cacheBrowser</b> - управление кеширования ужатых изображений в клиентском браузере. Допустимые значения: true|false
 
 

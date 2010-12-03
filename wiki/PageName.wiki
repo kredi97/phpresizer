@@ -108,14 +108,14 @@ try {
 
 <h4>Параметры передаваемые в конструктор new PhpResizer_PhpResizer()</h4>
 
-    * engine - движок используемый для ужатия. Доступные значения:
-          <code> PhpResizer_PhpResizer::ENGINE_GD2 </code>(выбрано по умолчанию)- GD (Graphics Draw) library
-          <code> PhpResizer_PhpResizer::ENGINE_IMAGEMAGICK </code>- ImageMagick
-          <code> PhpResizer_PhpResizer::ENGINE_GRAPHIKSMAGICK </code>- GraphicsMagick
+    <b> engine</b> - движок используемый для ужатия. Доступные значения:
+ PhpResizer_PhpResizer::ENGINE_GD2 (выбрано по умолчанию)- GD (Graphics Draw) library
+ PhpResizer_PhpResizer::ENGINE_IMAGEMAGICK </code>- ImageMagick
+ PhpResizer_PhpResizer::ENGINE_GRAPHIKSMAGICK </code>- GraphicsMagick
 
-    * cache - управление кешированием ужатых изображений на сервере. Допустимые значения: true|false по умочанию true
-    * cacheDir - абсолютный путь к папке где будут храниться закешированные ужатые файлы. По умочанию /tmp/resizerCache/
-    * cacheBrowser - управление кеширования ужатых изображений в клиентском браузере. Допустимые значения: true|false
+    <b>cache</b> - управление кешированием ужатых изображений на сервере. Допустимые значения: true|false по умочанию true
+    <b>cacheDir</b> - абсолютный путь к папке где будут храниться закешированные ужатые файлы. По умочанию /tmp/resizerCache/
+    <b>cacheBrowser</b> - управление кеширования ужатых изображений в клиентском браузере. Допустимые значения: true|false
 
 
 <h2>Очиста кеша</h2>

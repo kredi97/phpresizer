@@ -110,8 +110,8 @@ try {
 
     <b> engine</b> - движок используемый для ужатия. Доступные значения:
  PhpResizer_PhpResizer::ENGINE_GD2 (выбрано по умолчанию)- GD (Graphics Draw) library
- PhpResizer_PhpResizer::ENGINE_IMAGEMAGICK </code>- ImageMagick
- PhpResizer_PhpResizer::ENGINE_GRAPHIKSMAGICK </code>- GraphicsMagick
+ PhpResizer_PhpResizer::ENGINE_IMAGEMAGICK - ImageMagick
+ PhpResizer_PhpResizer::ENGINE_GRAPHIKSMAGICK - GraphicsMagick
 
     <b>cache</b> - управление кешированием ужатых изображений на сервере. Допустимые значения: true|false по умочанию true
     <b>cacheDir</b> - абсолютный путь к папке где будут храниться закешированные ужатые файлы. По умочанию /tmp/resizerCache/

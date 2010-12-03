@@ -109,9 +109,10 @@ try {
 <h4>Параметры передаваемые в конструктор new PhpResizer_PhpResizer()</h4>
 
     * engine - движок используемый для ужатия. Доступные значения:
-          o PhpResizer_PhpResizer::ENGINE_GD2 (выбрано по умолчанию)- GD (Graphics Draw) library
-          o PhpResizer_PhpResizer::ENGINE_IMAGEMAGICK - ImageMagick
-          o PhpResizer_PhpResizer::ENGINE_GRAPHIKSMAGICK - GraphicsMagick
+          <code> PhpResizer_PhpResizer::ENGINE_GD2 </code>(выбрано по умолчанию)- GD (Graphics Draw) library
+          <code> PhpResizer_PhpResizer::ENGINE_IMAGEMAGICK </code>- ImageMagick
+          <code> PhpResizer_PhpResizer::ENGINE_GRAPHIKSMAGICK </code>- GraphicsMagick
+
     * cache - управление кешированием ужатых изображений на сервере. Допустимые значения: true|false по умочанию true
     * cacheDir - абсолютный путь к папке где будут храниться закешированные ужатые файлы. По умочанию /tmp/resizerCache/
     * cacheBrowser - управление кеширования ужатых изображений в клиентском браузере. Допустимые значения: true|false

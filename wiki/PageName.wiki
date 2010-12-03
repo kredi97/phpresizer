@@ -1,73 +1,120 @@
-В каких ситуациях может понадобится:
+<a name="oglava"></a>
+<h2>Оглавление:</h2>
 
-⇒ Нам нужны уменьшенные копии какого-то изображения, например для двух размеров аватарак, предпросмотра картинки.
+<div class="oglava">
+<a class="first" href="#chapter1">В каких ситуациях может понадобится</a><br/>
 
-⇒ Наш дизайн имеет резиновую вёрстку и для пользователей с разными разрешениями мониторов мы хотим показывать изображение с разным разрешением
+<a href="#chapter2"  class="first">Использование</a><br/>
+	<a href="#chapter21" class="second">Перенаправим все запросы к изображениям на php скрипт</a><br/>
+	<a href="#chapter22" class="second">Определяем логику обработки изображения</a><br/>
+	<a href="#chapter23" class="second">Параметры передаваемые в конструктор new PhpResizer()</a><br/>
+<a href="#chapter3" class="first">Очиста кеша</a><br/>
 
-⇒ Мы хотим контролировать доступ к изображениям, разрешать одним и запрещать другим
+<a href="#chapter4" class="first">Вопрос - ответ</a>
+</div>
 
-⇒ Мы хотим гибко управлять нашими уменьшенными копиями: изменять размеры, соотношение сторон, увеличивать центральную часть (при использовании движка ImageMagick или GraphicsMagick можно будет управлять фильтрами, резкостью, размытостью, цветами, яркостью и т.д.)
-К оглавлению.
 
-Использование
-Перенаправим все запросы к изображениям на php скрипт
+<br/><br/>
+<a name="chapter1"></a>
+<h1>В каких ситуациях может понадобится:</h1>
+<p>
+	&#8658; Нам нужны уменьшенные копии какого-то изображения, например для двух размеров аватарак, предпросмотра картинки.</li>
+</p>
+<p>	
+	&#8658; Наш дизайн имеет резиновую вёрстку и для пользователей с разными разрешениями мониторов мы хотим показывать изображение с разным разрешением</li>
+
+</p>
+<p>
+	&#8658; Мы хотим контролировать доступ к изображениям, разрешать одним и запрещать другим</li>
+</p>
+<p>
+	&#8658; Мы хотим гибко управлять нашими уменьшенными копиями: изменять размеры, соотношение сторон, увеличивать центральную часть (при использовании движка ImageMagick или GraphicsMagick можно будет управлять фильтрами, резкостью, размытостью, цветами, яркостью и т.д.) </li>
+</p>
+	
+
+<a href="#oglava" class="oglava">К оглавлению.</a> <br/><br/>
+
+
+
+
+<a name="chapter2"></a>
+<h1>Использование</h1>
+<a name="chapter21"></a>
+<h4>Перенаправим все запросы к изображениям на php скрипт</h4>
 Для этого при использовании сервера Apache внесём изменения в .htaccess файл.
-.htaccess <IfModule mod_rewrite.c>
-RewriteEngine On
 
-#все запросы заканчивающиеся на .jpg .bmp .gif .png
-#перенаправляем на файл images.php
-RewriteCond %{REQUEST_URI} (.*\.)(jpg|bmp|gif|png)$ [NC]
-RewriteRule ^(.*\.)(jpg|bmp|gif|png)$ images.php?file=$1$2 [QSA,NC,S,L]
+<div class="code">
+<span class="file">.htaccess</span>
+<code>
+	&lt;IfModule mod_rewrite.c> <br/>
 
-#все другие запросы обрабатываем как и раньше попадают в index.php
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_URI} !images.php(.*) [NC]
-RewriteRule ^(.*)$ index.php?url=$1 [QSA]
-</IfModule>
+	    RewriteEngine On <br/>
+	<br/>
+		#все запросы заканчивающиеся на .jpg .bmp .gif .png<br/> 
+		#перенаправляем на файл images.php<br/> 
+	    RewriteCond %{REQUEST_URI} (.*\.)(jpg|bmp|gif|png)$ [NC]<br/>
+	    RewriteRule ^(.*\.)(jpg|bmp|gif|png)$ images.php?file=$1$2 [QSA,NC,S,L]<br/>
+	<br/>
 
-В место:
-http://example.com/testimage.jpg
-получаем:
-http://example.com/images.php?file=testimage.jpg
+		#все другие запросы обрабатываем как и раньше попадают в index.php<br/> 
+	    RewriteCond %{REQUEST_FILENAME} !-d<br/>
+	    RewriteCond %{REQUEST_FILENAME} !-f<br/>
+	    RewriteCond %{REQUEST_URI} !images.php(.*) [NC]<br/>
+	    RewriteRule ^(.*)$ index.php?url=$1 [QSA]<br/>
+	&lt;/IfModule><br/>
 
-А в место:
-http://example.com/testimage.jpg?type=avatar
-получаем:
-http://example.com/images.php?file=testimage.jpg&type=avatar
+</code>
+</div>
+<p>В место:<br/>
+<u>http://example.com/testimage.jpg</u> <br/> 
+получаем:<br/>
+<u>http://example.com/images.php?file=testimage.jpg</u>
+<br/><br/>
 
-Примечание: для обработки изображний можно использовать какой-нибудь метод контроллера вашего фремворка, но делать это не рекомендую из-за не нужной дополнительной нагрузки на сервер
-Определяем логику обработки изображения
-images.php
+А в место:<br/>
+<u>http://example.com/testimage.jpg?type=avatar</u><br/> 
 
+получаем:<br/> 
+<u>http://example.com/images.php?file=testimage.jpg&type=avatar</u>
+</p>
+<p>
+<i>Примечание: для обработки изображний можно использовать какой-нибудь метод контроллера вашего фремворка, но делать это не рекомендую из-за не нужной дополнительной нагрузки на сервер</i>
+</p> 
+ 
 
-<?php
+<a name="chapter22"></a>
+<h4>Определяем логику обработки изображения</h4>
+<div class="code">
+<span class="file">images.php</span>
 
-$file = (isset($_GET["file"])) ? $_GET["file"] : ""; 
+<pre>
+<code>
+&lt;?php
+
+$file = (isset($_GET[&quot;file&quot;])) ? $_GET[&quot;file&quot;] : &quot;&quot;; 
 
 $options = array (
-    "avatar"=>array(
-        "width"=>100, // желаемая ширина аватарки
-        "height"=>100, // желаемая высота аватарки
+    &quot;avatar&quot;=&gt;array(
+        &quot;width&quot;=&gt;100, // желаемая ширина аватарки
+        &quot;height&quot;=&gt;100, // желаемая высота аватарки
         /* пропорции не сохраняем, 
            если исходное изображение будет прямоугольником то 
            подрежим выступающие края до квадрата */
-        "aspect"=>false,
+        &quot;aspect&quot;=&gt;false,
         //возьмём от всего изображения 95% и увеличим этот фрагмент до наших 100х100 px 
-        "crop"=>95, 
+        &quot;crop&quot;=&gt;95, 
     ),
         // настройки для генерации предпросмотра изображения
-    "preview"=>array(
-        "width"=>400,
-        "height"=>500,
-        "aspect"=>true,
-        "crop"=>100,
+    &quot;preview&quot;=&gt;array(
+        &quot;width&quot;=&gt;400,
+        &quot;height&quot;=&gt;500,
+        &quot;aspect&quot;=&gt;true,
+        &quot;crop&quot;=&gt;100,
     )
 );
 
-if (isset($_GET["type"]) AND isset($options[$_GET["type"]])) {
-    $opt =  $options[$_GET["type"]];
+if (isset($_GET[&quot;type&quot;]) AND isset($options[$_GET[&quot;type&quot;]])) {
+    $opt =  $options[$_GET[&quot;type&quot;]];
 }else{
     $opt = array();
 }
@@ -78,15 +125,15 @@ if (isset($_GET["type"]) AND isset($options[$_GET["type"]])) {
 */
 
 
-require "/PhpResizer/Autoloader.php";
+require &quot;/PhpResizer/Autoloader.php&quot;;
 new PhpResizer_Autoloader(); 
 
 try {
 	$resizer = new PhpResizer_PhpResizer(array (
-		"engine"=>PhpResizer_PhpResizer::ENGINE_IMAGEMAGICK,
-		"cache"=>true,
-		"cacheDir"=>dirname(__FILE__)."/cache/",
-		"cacheBrowser"=>true,
+		&quot;engine&quot;=&gt;PhpResizer_PhpResizer::ENGINE_IMAGEMAGICK,
+		&quot;cache&quot;=&gt;true,
+		&quot;cacheDir&quot;=&gt;dirname(__FILE__).&quot;/cache/&quot;,
+		&quot;cacheBrowser&quot;=&gt;true,
 		)
 	);
     // Выполняем ужатие изображение.
@@ -94,48 +141,100 @@ try {
     // или вернуть изображение в браузер
     // а абсолютный путь к ужатому изображению
     // здесь следовало бы поставить true 
-	$resizer->resize(dirname(__FILE__)."/".$file, $opt, false);
+	$resizer-&gt;resize(dirname(__FILE__).&quot;/&quot;.$file, $opt, false);
 }catch(Exception $e) {
-	echo $e->getMessage();
+	echo $e-&gt;getMessage();
 } 
 
-Параметры передаваемые в конструктор new PhpResizer_PhpResizer()
+</code>
+</pre>
+</div>
 
-    * engine - движок используемый для ужатия. Доступные значения:
-          o PhpResizer_PhpResizer::ENGINE_GD2 (выбрано по умолчанию)- GD (Graphics Draw) library
-          o PhpResizer_PhpResizer::ENGINE_IMAGEMAGICK - ImageMagick
-          o PhpResizer_PhpResizer::ENGINE_GRAPHIKSMAGICK - GraphicsMagick
-    * cache - управление кешированием ужатых изображений на сервере. Допустимые значения: true|false по умочанию true
-    * cacheDir - абсолютный путь к папке где будут храниться закешированные ужатые файлы. По умочанию /tmp/resizerCache/
-    * cacheBrowser - управление кеширования ужатых изображений в клиентском браузере. Допустимые значения: true|false
+<a name="chapter23"></a>
+<h4>Параметры передаваемые в конструктор new PhpResizer_PhpResizer()</h4>
+<ul>
+<li>
+<b>engine</b> - движок используемый для ужатия. Доступные значения: 
+	<ul>
+		<li>PhpResizer_PhpResizer::ENGINE_GD2 (выбрано по умолчанию)- <a href="http://www.php.net/manual/en/book.image.php">GD (Graphics Draw) library</a></li>
 
-К оглавлению.
+		<li>PhpResizer_PhpResizer::ENGINE_IMAGEMAGICK - <a href="http://www.imagemagick.org">ImageMagick</a></li>
+		<li>PhpResizer_PhpResizer::ENGINE_GRAPHIKSMAGICK - <a href="http://www.graphicsmagick.org/">GraphicsMagick</a></li>
+	</ul>   
+</li>
+
+<li><b>cache</b> - управление кешированием ужатых изображений на сервере. Допустимые значения: <b>true</b>|<b>false</b>
+
+по умочанию <b>true</b>
+</li>
+
+<li><b>cacheDir</b> - абсолютный путь к папке где будут храниться закешированные ужатые файлы. По умочанию /tmp/resizerCache/
+</li>
+
+<li><b>cacheBrowser</b> - управление кеширования ужатых изображений в клиентском браузере. Допустимые значения: <b>true</b>|<b>false</b>
+
+</li>
+</ul>
+<a href="#oglava" class="oglava">К оглавлению.</a><br/><br/><br/>
 
 
-Очиста кеша
-
-В данном примере мы удаляем из папки "/var/www/resizer/cache/" все файлы к которым никто не обращался уже целую неделю. (Внимание!!!, не ошибись с путём к папке)
-<?php
-$resizer = new PhpResizer_PhpResizer(array (
-"cacheDir"=>"/var/www/resizer/cache/"
-)
-);
-$resizer->clearCache(60*24*7);
-К оглавлению.
 
 
-Вопрос - ответ
-Хочу что изображения сервер отдавал непосредственно, а не через через php-скрипт?
+<a name="chapter3"></a>
+<h1>Очиста кеша</h1>
+<p>В данном примере мы удаляем из папки  "/var/www/resizer/cache/" все файлы к которым никто не обращался уже целую неделю.
+(<u>Внимание!!!</u>, не ошибись с путём к папке) 
+</p>
 
-Нам понадобится небольшой класс - ImageHelper, на входе метод получает путь к файлу - оригиналу, и параметр определяющий настройки пережатия. В Хелпере используя библиотеку PhpResizer выполняем пережатие изображения, в метод resize не забываем передать третий параметр true С таким параметром библиотека вернёт абсолютный путь к файлу в кеше например /var/www/site/design/images/PhpResizerCache/4k/33sdfsdf4wesd34rsf43.jpg Используя функции обработки строк превращаем /var/www/site/design/images/PhpResizerCache/4k/33sdfsdf4wesd34rsf43.jpg в нечто похожее на http://example.com/design/images/PhpResizerCache/4k/33sdfsdf4wesd34rsf43.jpg У этого способа есть недостаток: мы не можем контролировать доступ к ужатым изображения пользователей.
+<div class="code">
 
-Вот так выглядело бы использование хелпера при генерации содержимого страницы:
+	<code>
+	&lt;?php<br />
+    $resizer = new PhpResizer_PhpResizer(array (<br />
+        &quot;cacheDir&quot;=&gt;&quot;/var/www/resizer/cache/&quot;<br />
+    )<br />
+    );<br />
 
-<img src="<?php echo ImageHelper::resize("user134.jpg","avatar"); ?>" alt="фотография"/>
+    $resizer-&gt;clearCache(60*24*7);	</code>
+</div>
+<a href="#oglava" class="oglava">К оглавлению.</a><br/><br/><br/>
 
-Вот что увидет пользователь:
 
-<img src="http://example.com/design/images/as/sd5fs3df4d34ssf4gf435o.jpg" alt="моя фотография"/>
-Я не хочу заставлять пользователя ждать пока PhpResizer выполнит пережатия изображения.
+<a name="chapter4"></a>
+<h1>Вопрос - ответ</h1>
+<h4>Хочу что изображения сервер отдавал непосредственно, а не через через php-скрипт?</h4>
 
-Здесь на помощь придёт crontab Сразу как только появляется изображение для которого неминуемо придётся сгенерировать несколько вариантов, мы добавляем задачу в какой-нибудь стек, очередь. Раз в минуту crontab будет проверять не появилось ли что в очереди, и если появилось запустится скрипт в котором мы и создадим все необходимые файлы в кеше. Когда пользователь обратится за ужатым файлом, он уже будет подготовлен и лежать в кеше. 
+<p>
+Нам понадобится небольшой класс - ImageHelper, на входе метод получает путь к файлу - оригиналу, 
+и параметр определяющий настройки пережатия. 
+В Хелпере используя библиотеку PhpResizer выполняем пережатие изображения, в метод  resize не забываем передать третий параметр <b>true</b>
+
+С таким параметром библиотека вернёт абсолютный путь к файлу в кеше например /var/www/site/design/images/PhpResizerCache/4k/33sdfsdf4wesd34rsf43.jpg 
+Используя функции обработки строк превращаем /var/www/site/design/images/PhpResizerCache/4k/33sdfsdf4wesd34rsf43.jpg в нечто похожее на http://example.com/design/images/PhpResizerCache/4k/33sdfsdf4wesd34rsf43.jpg
+У этого способа есть недостаток: мы не можем контролировать доступ к ужатым изображения пользователей.
+</p>
+
+<p>Вот так выглядело бы использование хелпера при генерации содержимого страницы:</p> 
+<div class="code">
+	<code>
+	<br/>    &lt;img&nbsp;src="&lt;?php&nbsp;echo&nbsp;ImageHelper::resize("user134.jpg","avatar");&nbsp;?>"&nbsp;alt="фотография"/><br/>    	</code>
+
+</div>
+
+
+<p>Вот что увидет пользователь:</p>
+<div class="code">
+	<code>
+	<br/>    &lt;img&nbsp;src="http://example.com/design/images/as/sd5fs3df4d34ssf4gf435o.jpg"&nbsp;alt="моя&nbsp;фотография"/><br/>    	</code>
+</div>
+
+<h4>Я не хочу заставлять пользователя ждать пока PhpResizer выполнит пережатия изображения.</h4>
+<p>
+Здесь на помощь придёт <a href="http://ru.wikipedia.org/wiki/Crontab">crontab</a> 
+Сразу как только появляется изображение для которого неминуемо придётся сгенерировать несколько вариантов, 
+мы добавляем задачу в какой-нибудь стек, очередь. 
+Раз в минуту crontab будет проверять не появилось ли что в очереди, 
+и если появилось запустится скрипт в котором мы и создадим все необходимые файлы в кеше. 
+Когда пользователь обратится за ужатым файлом, он уже будет подготовлен и лежать в кеше.      
+</p>
+<a href="#oglava" class="oglava">К оглавлению.</a><br/><br/><br/>

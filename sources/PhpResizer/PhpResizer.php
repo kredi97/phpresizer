@@ -19,7 +19,7 @@ class PhpResizer_PhpResizer {
 
     const EXC_TMPDIR_NOT_EXISTS = 'Path "%s" is not exists or not writtable';
     const EXC_CACHEDIR_NOT_EXISTS =
-        'Path "%s" is not exists or not writtable or not executable';
+        'Path "%s" is not exists or not writtable';
     const EXC_FILE_CRASHED = 'File "%s" is crashed';
     const EXC_ENABLE_CACHE =
         'For "returnOnlyPath" option set "cache" options as TRUE';
@@ -120,7 +120,7 @@ class PhpResizer_PhpResizer {
     protected function _validateCacheDir()
     {
         $dir = $this->_cacheDir;
-        if (!is_writable($dir) || !is_executable($dir)) {
+        if (!is_writable($dir)) {
             $message = sprintf(self::EXC_CACHEDIR_NOT_EXISTS, $dir);
             throw new PhpResizer_Exception_Basic($message);
         }

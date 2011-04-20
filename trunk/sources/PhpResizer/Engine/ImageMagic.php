@@ -6,7 +6,7 @@
  * @subpackage Engine
  * @author $Author$ $Date$
  * @license New BSD license
- * @copyright http://phpresizer.org/
+ * @copyright http://code.google.com/p/phpresizer/
  */
 
 /**
@@ -15,7 +15,7 @@
  */
 class PhpResizer_Engine_ImageMagic extends PhpResizer_Engine_EngineAbstract  {
 
-    protected $types=array(1 => "gif", "png","jpg","bmp","tif");
+    protected $types=array(1 => 'gif', 'png', 'jpg', 'bmp', 'tif', 'jpeg');
 
     // linux command to ImageMagick convert
     private $convertPath='convert';

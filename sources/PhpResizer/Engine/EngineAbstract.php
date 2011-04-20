@@ -6,7 +6,7 @@
  * @subpackage Engine
  * @author $Author$ $Date$
  * @license New BSD license
- * @copyright http://phpresizer.org/
+ * @copyright http://code.google.com/p/phpresizer/
  */
 
 /**
@@ -17,6 +17,7 @@ abstract class PhpResizer_Engine_EngineAbstract
 	
 	const EXC_BAD_PARAM ='param %s is bad';
 	const EXC_ENGINE_IS_NOT_AVALIBLE ='engine %s is not avalible';
+	const EXC_EXTENSION_IS_NOT_AVALIBLE ='extension  %s is not allowed. Allowed: %s';
     /**
      * @var array
      */
@@ -114,10 +115,10 @@ abstract class PhpResizer_Engine_EngineAbstract
             throw new PhpResizer_Exception_Basic(sprintf(self::EXC_BAD_PARAM,'size'));
         }
 
-        $ext = strtolower(substr($this->params['path'], -3));
-
+        $ext = PhpResizer_PhpResizer::getExtension($this->params['path']);
         if (!in_array($ext, $this->types)) {
-            throw new PhpResizer_Exception_IncorrectExtension('extension  '.$ext.' is not allowed');
+            throw new PhpResizer_Exception_IncorrectExtension(
+            	sprintf(self::EXC_EXTENSION_IS_NOT_AVALIBLE, $ext, implode(',',$this->types)));
         }
     }
 

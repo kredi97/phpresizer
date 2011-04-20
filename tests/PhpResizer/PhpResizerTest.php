@@ -5,7 +5,7 @@
  * @package PhpResizerTest
  * @author $Author$ $Date$
  * @license New BSD license
- * @copyright http://phpresizer.org/
+ * @copyright http://code.google.com/p/phpresizer/
  */
 
 /**
@@ -58,7 +58,7 @@ class PhpResizer_PhpResizerTest extends PHPUnit_Framework_TestCase
     public function providerFiles()
     {
         return array(
-        	array('normal.bmp'), array('normal.jPg'),
+        	array('normal.bmp'), array('normal.jpEg'),
         	array('normalCMYK.jpg'), array('normal.gif'),
         	array('normal.png'));
     }

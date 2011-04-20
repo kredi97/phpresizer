@@ -1,4 +1,5 @@
 <?php
+
 if (isset($_GET['file'])) {
 	$file=$_GET['file'];
 }else{
@@ -43,14 +44,15 @@ new PhpResizer_Autoloader();
 
 try {
 	$resizer = new PhpResizer_PhpResizer(array (
-		'engine'=>PhpResizer_PhpResizer::ENGINE_GD2,
+		'engine'=>PhpResizer_PhpResizer::ENGINE_IMAGEMAGICK,
 		'cacheDir'=>dirname(__FILE__).'/cache/',
 		'cache'=>true,
 		'cacheBrowser'=>true,
 		)
 	);
+	
 	$resizer->resize(dirname(__FILE__).'/'.$file, $opt);
-}catch(Exception $e) {
+}catch(Exception $e) {	
 	echo $e->getMessage();
 }
 

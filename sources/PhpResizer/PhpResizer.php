@@ -5,7 +5,7 @@
  * @package PhpResizer
  * @author $Author$ $Date$
  * @license New BSD license
- * @copyright http://phpresizer.org/
+ * @copyright http://code.google.com/p/phpresizer/
  */
 
 /**
@@ -194,7 +194,7 @@ class PhpResizer_PhpResizer {
 
         } else {
             $cacheFile = $this->_tmpDir . '/imageResizerTmpFile_'
-                . uniqid() . '.' . $this->getExtension($path);
+                . uniqid() . '.' . $this->getExtensionOutputFile($path);
         }
 
         return $cacheFile;
@@ -204,11 +204,12 @@ class PhpResizer_PhpResizer {
      * @param string $filename
      * @return string
      */
-    public function getExtension($filename)
+    public static function getExtensionOutputFile($filename)
     {
         $allowedExtenstions = array('png');
         $defaultExtension = 'jpg';
-        $ext = strtolower(substr($filename,-3));
+        $ext = self::getExtension($filename);
+        //$ext = strtolower(substr($filename,-3));
 
         if (in_array($ext, $allowedExtenstions)) {
             return $ext;
@@ -216,6 +217,10 @@ class PhpResizer_PhpResizer {
         } else {
             return $defaultExtension;
         }
+    }
+    
+    public static function getExtension($filename) {     	
+    	return strtolower(array_pop(explode('.',$filename)));
     }
 
     /**
@@ -228,7 +233,7 @@ class PhpResizer_PhpResizer {
         $hash = md5(serialize($this->_options).$path);
         $cacheFilePath = $this->_cacheDir . '/' . substr($hash, 0,1)
             . '/' . substr($hash, 1, 1) . '/' . substr($hash, 2) . '.'
-            . $this->getExtension($path);
+            . $this->getExtensionOutputFile($path);
 
 
         if (!is_dir(dirname($cacheFilePath))){

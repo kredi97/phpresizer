@@ -5,7 +5,7 @@
  * @package PhpResizer
  * @author $Author$ $Date$
  * @license New BSD license
- * @copyright http://phpresizer.org/
+ * @copyright http://code.google.com/p/phpresizer/
  */
 
 /**

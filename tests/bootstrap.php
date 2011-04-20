@@ -5,7 +5,7 @@
  * @package PhpResizerTest
  * @author $Author$ $Date$
  * @license New BSD license
- * @copyright http://phpresizer.org/
+ * @copyright http://code.google.com/p/phpresizer/
  */
 
 define('APPLICATION_PATH', realpath(dirname(__FILE__) . '/../'));

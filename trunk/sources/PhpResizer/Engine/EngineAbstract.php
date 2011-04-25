@@ -65,7 +65,8 @@ abstract class PhpResizer_Engine_EngineAbstract
             'crop' => 100,
             'size' => null, //array, result working function getimagesize()
             'cacheFile' => null,
-            'path' => null
+            'path' => null,
+        	'fill'=> null
         );
         $this->params = array_merge($defaultOptions, $inputParams);
         $this->params['crop'] = (int)$this->params['crop'];
@@ -115,6 +116,10 @@ abstract class PhpResizer_Engine_EngineAbstract
             throw new PhpResizer_Exception_Basic(sprintf(self::EXC_BAD_PARAM,'size'));
         }
 
+        /*
+         * @todo write check param fill
+         */
+        
         $ext = PhpResizer_PhpResizer::getExtension($this->params['path']);
         if (!in_array($ext, $this->types)) {
             throw new PhpResizer_Exception_IncorrectExtension(
@@ -138,11 +143,10 @@ abstract class PhpResizer_Engine_EngineAbstract
 
         $srcX = 0; $srcY = 0;
 
-        if ($aspect and $aspect!="0") {
+        if ($aspect) {
             if (($size[1]/$height) > ($size[0]/$width)) {
                 $width = ceil(($size[0]/$size[1]) * $height);
                 $height = $height;
-
             } else {
                 $height = ceil($width / ($size[0]/$size[1]));
                 $width = $width;

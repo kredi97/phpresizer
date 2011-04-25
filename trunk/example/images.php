@@ -18,6 +18,7 @@ $options = array (
 		'height'=>200,
 		'aspect'=>true,
 		'crop'=>100,
+		'fill'=>'#ff00ff'
 	),
 	'prev3'=>array(
 		'width'=>600,
@@ -44,10 +45,10 @@ new PhpResizer_Autoloader();
 
 try {
 	$resizer = new PhpResizer_PhpResizer(array (
-		'engine'=>PhpResizer_PhpResizer::ENGINE_IMAGEMAGICK,
+		'engine'=>PhpResizer_PhpResizer::ENGINE_GRAPHIKSMAGICK,
 		'cacheDir'=>dirname(__FILE__).'/cache/',
-		'cache'=>true,
-		'cacheBrowser'=>true,
+		'cache'=>false,
+		'cacheBrowser'=>false,
 		)
 	);
 	

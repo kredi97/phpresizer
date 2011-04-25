@@ -24,6 +24,11 @@ class PhpResizer_PhpResizerTest extends PHPUnit_Framework_TestCase
     protected static $_cacheDir;
     
     /**
+     * @var array
+     */
+    protected static $testPhoto;
+    
+    /**
      *
      */
     public static function setUpBeforeClass()
@@ -56,19 +61,29 @@ class PhpResizer_PhpResizerTest extends PHPUnit_Framework_TestCase
      * @return array
      */
     public function providerFiles()
-    {
-        return array(
-        	array('normal.bmp'), array('normal.jpEg'),
-        	array('normalCMYK.jpg'), array('normal.gif'),
-        	array('normal.png'));
+    {	       
+      	self::setUpBeforeClass();
+      	      	
+      	$directoryIterator = new DirectoryIterator (self::$_filesDir);
+		$testPhoto=array();
+		foreach  ($directoryIterator as $item)  {
+			if ($item->isFile()) {
+				$testPhoto[]=array($item->getFileName(), $item->getFileName()=== 'bad_image.jpg');
+			}
+		}
+		
+		return $testPhoto;
     }
 
+    
+    
     /**
      * @dataProvider providerFiles
      * @knownException PhpResizer_Exception_IncorrectExtension
      */
-    public function testResize($file)
+    public function testResize($file, $isBadFile)
     {
+
         $options = array(
             'width'  => 100,
             'height' => 150,
@@ -86,11 +101,17 @@ class PhpResizer_PhpResizerTest extends PHPUnit_Framework_TestCase
         	);
         	
             try {
-            	$phpResizerObj= new PhpResizer_PhpResizer($phpReszierOptions);
-            	$cacheFile =$phpResizerObj->resize($filename, $options, true);
+            	
+            	$phpResizerObj= new PhpResizer_PhpResizer($phpReszierOptions);            	
+            	$cacheFile = $phpResizerObj->resize($filename, $options, true);
+            	
             }catch(PhpResizer_Exception_IncorrectExtension $e){
             	echo 'engine:' . $engine . ' - ' . $e->getMessage().PHP_EOL;
             	return;
+            }catch(PhpResizer_Exception_Basic $e){
+            	$this->assertTrue($isBadFile
+                , 'Плохой файл не вызвал исключение (движок:'.$engine.') (файл:'.$filename.')');
+                return; 
             }
            
             $this->assertTrue(file_exists($cacheFile)

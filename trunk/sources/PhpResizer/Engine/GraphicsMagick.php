@@ -41,13 +41,12 @@ class PhpResizer_Engine_GraphicsMagick extends PhpResizer_Engine_EngineAbstract 
         extract($this->calculateParams());
         
              $command = $this->gmPath.' convert'
-                 . ' ' . escapeshellcmd($path) . ' -crop'
+                 . ' ' . escapeshellarg($path) . ' -crop'
                  . ' ' . $srcWidth . 'x' . $srcHeight . '+' . $srcX . '+' . $srcY
                  . ' -resize ' . $dstWidth . 'x' . $dstHeight
                  . ' -sharpen 1x10'
-                 . ' -quality 75'
-                 . ' ' . escapeshellcmd($cacheFile);
-
+                 . ' -quality 85'
+                 . ' ' . escapeshellarg($cacheFile);
             exec($command);
         return true;
     }

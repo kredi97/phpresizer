@@ -41,7 +41,7 @@ class PhpResizer_Engine_ImageMagic extends PhpResizer_Engine_EngineAbstract  {
         extract($this->calculateParams());
         
              $command = $this->convertPath
-                 . ' ' . escapeshellcmd($path) . ' -crop'
+                 . ' ' . escapeshellarg($path) . ' -crop'
                  . ' ' . $srcWidth.'x'.$srcHeight . '+' . $srcX . '+' . $srcY
                  . ' -resize ' . $dstWidth . 'x' . $dstHeight
                  .' -sharpen 1x10'
@@ -61,7 +61,7 @@ class PhpResizer_Engine_ImageMagic extends PhpResizer_Engine_EngineAbstract  {
                 //.' -implode 4'
                 //.' -solarize 10' ???
                 //.' -spread 5'
-                 . ' ' . escapeshellcmd($cacheFile);
+                 . ' ' . escapeshellarg($cacheFile);
 
 			exec($command);
             return true;

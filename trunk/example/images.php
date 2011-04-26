@@ -14,23 +14,17 @@ $options = array (
 		'crop'=>90,
 	),
 	'prev2'=>array(
+		'width'=>150,
+		'height'=>150,
+		'aspect'=>true,
+		'crop'=>100,
+		'background'=>'#ff0000'
+	),
+	'prev3'=>array(
 		'width'=>200,
 		'height'=>200,
 		'aspect'=>true,
-		'crop'=>100,
-		'fill'=>'#ff00ff'
-	),
-	'prev3'=>array(
-		'width'=>600,
-		'height'=>600,
-		'aspect'=>true,
-		'crop'=>100,
-	),
-	'prev4'=>array(
-		'width'=>1000,
-		'height'=>1000,
-		'aspect'=>true,
-		'crop'=>100,
+		'crop'=>600,
 	),
 );
 
@@ -45,14 +39,16 @@ new PhpResizer_Autoloader();
 
 try {
 	$resizer = new PhpResizer_PhpResizer(array (
-		'engine'=>PhpResizer_PhpResizer::ENGINE_GRAPHIKSMAGICK,
+		//'engine'=>PhpResizer_PhpResizer::ENGINE_IMAGEMAGICK,
+		//'engine'=>PhpResizer_PhpResizer::ENGINE_GRAPHIKSMAGICK,
+		'engine'=>PhpResizer_PhpResizer::ENGINE_GD2,
 		'cacheDir'=>dirname(__FILE__).'/cache/',
 		'cache'=>false,
 		'cacheBrowser'=>false,
 		)
 	);
 	
-	$resizer->resize(dirname(__FILE__).'/'.$file, $opt);
+	$resizer->resize(dirname(__FILE__).'/../tests/PhpResizer/files/'.$file, $opt);
 }catch(Exception $e) {	
 	echo $e->getMessage();
 }

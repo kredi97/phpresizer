@@ -66,7 +66,7 @@ abstract class PhpResizer_Engine_EngineAbstract
             'size' => null, //array, result working function getimagesize()
             'cacheFile' => null,
             'path' => null,
-        	'fill'=> null
+        	'background'=> null
         );
         $this->params = array_merge($defaultOptions, $inputParams);
         $this->params['crop'] = (int)$this->params['crop'];
@@ -115,10 +115,12 @@ abstract class PhpResizer_Engine_EngineAbstract
         {
             throw new PhpResizer_Exception_Basic(sprintf(self::EXC_BAD_PARAM,'size'));
         }
-
+        
+        if($this->params['background']) {
         /*
          * @todo write check param fill
          */
+        }        
         
         $ext = PhpResizer_PhpResizer::getExtension($this->params['path']);
         if (!in_array($ext, $this->types)) {
@@ -139,27 +141,29 @@ abstract class PhpResizer_Engine_EngineAbstract
      */
     protected function calculateParams()
     {
+    	
         extract($this->params);
 
         $srcX = 0; $srcY = 0;
 
         if ($aspect) {
             if (($size[1]/$height) > ($size[0]/$width)) {
-                $width = ceil(($size[0]/$size[1]) * $height);
-                $height = $height;
+                $dstWidth = ceil(($size[0]/$size[1]) * $height);
+                $dstHeight = $height;
             } else {
-                $height = ceil($width / ($size[0]/$size[1]));
-                $width = $width;
+                $dstHeight = ceil($width / ($size[0]/$size[1]));
+                $dstWidth = $width;
             }
-
         } else {
-           if (($height/$width) <= ($size[1]/$size[0])) {
-                $temp=$height*($size[0]/$width);
-                   $srcY=ceil(($size[1]-$temp)/2);
+			$dstHeight = $height;
+			$dstWidth = $width;
+			if (($height/$width) <= ($size[1]/$size[0])) {
+				$temp=$height*($size[0]/$width);
+				$srcY=ceil(($size[1]-$temp)/2);
                 $size[1]=ceil($temp);
-           } else {
-                $temp=$width*($size[1]/$height);
-                   $srcX=ceil(($size[0]-$temp)/2);
+			} else {
+				$temp=$width*($size[1]/$height);
+				$srcX=ceil(($size[0]-$temp)/2);
                 $size[0]=ceil($temp);
            }
         }
@@ -173,14 +177,17 @@ abstract class PhpResizer_Engine_EngineAbstract
         }
 
         return array(
+        	'width' => $width,
+        	'height' => $height,
             'srcX' => $srcX,
             'srcY' => $srcY,
             'srcWidth' => $size[0],
             'srcHeight' => $size[1],
             'dstX' => 0,
             'dstY' => 0,
-            'dstWidth' => $width,
-            'dstHeight' => $height,
+            'dstWidth' => $dstWidth,
+            'dstHeight' => $dstHeight,
+        	'background'=> $background,        	
         );
     }
 

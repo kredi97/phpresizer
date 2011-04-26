@@ -6,14 +6,15 @@
 		* {padding: 0; margin: 0;}
 		body {padding: 20px; background-color: #f0f0f0;}
 		img {padding: 0px; margin: 0}
-		table td{padding: 20px; background-color: white}
+		table {width: 50%; margin: 0 auto;}
+		table td{padding: 5px; text-align: center; background-color: #fef}
 	</style>
 	<title>PhpResizer - example</title>
 </head>
 <body>
 
 <?php 
-$directoryIterator = new DirectoryIterator (dirname(__FILE__).'/photo');
+$directoryIterator = new DirectoryIterator (dirname(__FILE__).'/../tests/PhpResizer/files');
 $photos=array();
 foreach  ($directoryIterator as $item)  {
 	if ($item->isFile())  {
@@ -24,15 +25,13 @@ foreach  ($directoryIterator as $item)  {
 
 <table>
 <?php foreach ($photos as $photo) { ?>
-<tr>
-<td>
-	<img src="/photo/<?php echo $photo?>?type=prev1" />
-</td>
-<td>
-	<a href="/photo/<?php echo $photo?>?type=prev2" target="_blank">small preview</a><br/>
-	<a href="/photo/<?php echo $photo?>?type=prev3" target="_blank">medium preview</a><br/>
-	<a href="/photo/<?php echo $photo?>?type=prev4" target="_blank">big preview</a>
-</td>	
+
+<tr><td colspan=3><?php echo $photo; ?></td></td>
+<tr>	
+	<td><img src="<?php echo $photo?>?type=prev1" /></td>
+	<td><img src="<?php echo $photo?>?type=prev2" /></td>
+	<td><img src="<?php echo $photo?>?type=prev3" /></td>	
+</tr>
 <?php }?>
 	
 </body>

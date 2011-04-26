@@ -15,7 +15,14 @@
  */
 class PhpResizer_Engine_ImageMagic extends PhpResizer_Engine_EngineAbstract  {
 
-    protected $types=array(1 => 'gif', 'png', 'jpg', 'bmp', 'tif', 'jpeg');
+    	
+    protected $types=array(IMAGETYPE_GIF => 'gif', 
+	    IMAGETYPE_JPEG=>'jpeg',
+	    IMAGETYPE_PNG=>'png', 
+	    1000 => 'jpg', 
+	    'bmp', 
+	    'tif',  
+	    'tiff');
 
     // linux command to ImageMagick convert
     private $convertPath='convert';
@@ -44,7 +51,7 @@ class PhpResizer_Engine_ImageMagic extends PhpResizer_Engine_EngineAbstract  {
                  . ' ' . escapeshellarg($path) . ' -crop'
                  . ' ' . $srcWidth.'x'.$srcHeight . '+' . $srcX . '+' . $srcY
                  . ' -resize ' . $dstWidth . 'x' . $dstHeight
-                 .' -sharpen 1x10'
+                 . ' -sharpen 1x10'
                  //.' -colorspace GRAY'
                 //.' -posterize 32'
                 //.' -depth 8'
@@ -52,7 +59,7 @@ class PhpResizer_Engine_ImageMagic extends PhpResizer_Engine_EngineAbstract  {
                 //.' -equalize'
                 //.' -normalize'
                 //.' -gamma 1.2'
-                 . ' -quality 85'
+                 . ' -quality 27'
                  //.' -blur 2x4'
                  //.' -unsharp 0.2x0+300+0'
                 //.' -font arial.ttf -fill white -box "#000000100" -pointsize 12 -annotate +0+10 "  '.$path.' "'
@@ -61,7 +68,11 @@ class PhpResizer_Engine_ImageMagic extends PhpResizer_Engine_EngineAbstract  {
                 //.' -implode 4'
                 //.' -solarize 10' ???
                 //.' -spread 5'
-                 . ' ' . escapeshellarg($cacheFile);
+                ;
+                if ($background) {
+                	// $command .= '  -background "'.$background.'" -gravity center -extent '.$width.'x'.$height;              	
+                }
+                $command .= ' ' . escapeshellarg($cacheFile);
 
 			exec($command);
             return true;

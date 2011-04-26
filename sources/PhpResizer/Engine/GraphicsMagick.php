@@ -14,7 +14,13 @@
  */
 class PhpResizer_Engine_GraphicsMagick extends PhpResizer_Engine_EngineAbstract  {
 
-    protected $types=array(1 => 'gif', 'png', 'jpg', 'bmp', 'tif', 'jpeg');
+	protected $types=array(IMAGETYPE_GIF => 'gif',
+	    IMAGETYPE_JPEG=>'jpeg',
+	    IMAGETYPE_PNG=>'png',
+	    1000 => 'jpg',
+	    'bmp',
+	    'tif',
+	    'tiff');
 
     // linux command to GraphicksMagick
     private $gmPath='gm';
@@ -32,6 +38,7 @@ class PhpResizer_Engine_GraphicsMagick extends PhpResizer_Engine_EngineAbstract 
     }
 
     public function resize  (array $params=array()) {
+    	
         $this->getParams($params);
 
         $size = $this->params['size'];
@@ -45,9 +52,15 @@ class PhpResizer_Engine_GraphicsMagick extends PhpResizer_Engine_EngineAbstract 
                  . ' ' . $srcWidth . 'x' . $srcHeight . '+' . $srcX . '+' . $srcY
                  . ' -resize ' . $dstWidth . 'x' . $dstHeight
                  . ' -sharpen 1x10'
-                 . ' -quality 85'
-                 . ' ' . escapeshellarg($cacheFile);
-            exec($command);
+                 . ' -quality 85';
+                 
+                if ($background) {
+                	// $command .= '  -background "'.$background.'" -gravity center -extent '.$width.'x'.$height;              	
+                }
+                
+                $command .= ' ' . escapeshellarg($cacheFile);
+            exec ($command);
+
         return true;
     }
 }

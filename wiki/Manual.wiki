@@ -59,9 +59,9 @@ try {
 
     <b> engine</b> - движок используемый для ужатия. Доступные значения:
 
- PhpResizer_PhpResizer::ENGINE_GD2 (выбрано по умолчанию)- GD (Graphics Draw) library
- PhpResizer_PhpResizer::ENGINE_IMAGEMAGICK - <a href="http://www.imagemagick.org/script/index.php">ImageMagick</a>
- PhpResizer_PhpResizer::ENGINE_GRAPHIKSMAGICK - <a href="http://www.graphicsmagick.org/">GraphicsMagick</a>
+<code>PhpResizer_PhpResizer::ENGINE_GD2</code> (выбрано по умолчанию)- GD (Graphics Draw) library
+<code>PhpResizer_PhpResizer::ENGINE_IMAGEMAGICK </code>- <a href="http://www.imagemagick.org/script/index.php">ImageMagick</a>
+<code>PhpResizer_PhpResizer::ENGINE_GRAPHIKSMAGICK</code> - <a href="http://www.graphicsmagick.org/">GraphicsMagick</a>
 
     <b>cache</b> - управление кешированием ужатых изображений на строне сервера. Допустимые значения: true|false по умочанию true
 

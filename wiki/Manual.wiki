@@ -2,38 +2,18 @@
 
 <h2>Использование</h2>
 Перенаправим все запросы к изображениям на php скрипт
-Для этого при использовании сервера Apache внесём изменения в .htaccess файл.
+Пример .htaccess файла
 
 .htaccess 
 <code>
-<IfModule mod_rewrite.c>
-RewriteEngine On
-
-#все запросы заканчивающиеся на .jpg .bmp .gif .png
-#перенаправляем на файл images.php
-RewriteCond %{REQUEST_URI} (.*\.)(jpg|bmp|gif|png)$ [NC]
-RewriteRule ^(.*\.)(jpg|bmp|gif|png)$ images.php?file=$1$2 [QSA,NC,S,L]
-
-#все другие запросы обрабатываем как и раньше попадают в index.php
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_URI} !images.php(.*) [NC]
-RewriteRule ^(.*)$ index.php?url=$1 [QSA]
-</IfModule>
+ываыва
+ываыав
 </code>
 
-В место:
-http://example.com/testimage.jpg
-получаем:
-http://example.com/images.php?file=testimage.jpg
-
-А в место:
+Тепперь запрос:
 http://example.com/testimage.jpg?type=avatar
-получаем:
+будет обрабатываться как:
 http://example.com/images.php?file=testimage.jpg&type=avatar
-
-<i>Примечание: для обработки изображний можно использовать какой-нибудь метод контроллера вашего фремворка, но делать это не рекомендую из-за не нужной дополнительной нагрузки на сервер </i>
-
 
 <h4>Определяем логику обработки изображения</h4>
 images.php
@@ -41,33 +21,15 @@ images.php
 <code>
 <?php
 
-$file = (isset($_GET["file"])) ? $_GET["file"] : ""; 
-
 $options = array (
     "avatar"=>array(
         "width"=>100, // желаемая ширина аватарки
         "height"=>100, // желаемая высота аватарки
-        /* пропорции не сохраняем, 
-           если исходное изображение будет прямоугольником то 
-           подрежим выступающие края до квадрата */
         "aspect"=>false,
-        //возьмём от всего изображения 95% и увеличим этот фрагмент до наших 100х100 px 
         "crop"=>95, 
-    ),
-        // настройки для генерации предпросмотра изображения
-    "preview"=>array(
-        "width"=>400,
-        "height"=>500,
-        "aspect"=>true,
-        "crop"=>100,
     )
 );
 
-if (isset($_GET["type"]) AND isset($options[$_GET["type"]])) {
-    $opt =  $options[$_GET["type"]];
-}else{
-    $opt = array();
-}
 
 /*
 На этом этапе, при необходимости, проверяем разрешено ли пользователю 
@@ -82,19 +44,14 @@ try {
 	$resizer = new PhpResizer_PhpResizer(array (
 		"engine"=>PhpResizer_PhpResizer::ENGINE_IMAGEMAGICK,
 		"cache"=>true,
-		"cacheDir"=>dirname(__FILE__)."/cache/",
+		"cacheDir"=>__DIR__."/cache/",
 		"cacheBrowser"=>true,
 		)
 	);
-    // Выполняем ужатие изображение.
-    // Третий параметр отвечает за то чтоб отдавать нам только абсолютный путь к ужатому файлу (true)
-    // или вернуть изображение в браузер
-    // а абсолютный путь к ужатому изображению
-    // здесь следовало бы поставить true 
-	$resizer->resize(dirname(__FILE__)."/".$file, $opt, false);
+	$resizer->resize(__DIR__."/".$file, $opt, false);
 }catch(Exception $e) {
-	echo $e->getMessage();
-} 
+    // обрабатываем ошибки
+}
 </code>
 
 
@@ -103,16 +60,14 @@ try {
     <b> engine</b> - движок используемый для ужатия. Доступные значения:
 
  PhpResizer_PhpResizer::ENGINE_GD2 (выбрано по умолчанию)- GD (Graphics Draw) library
+ PhpResizer_PhpResizer::ENGINE_IMAGEMAGICK - <a href="http://www.imagemagick.org/script/index.php">ImageMagick</a>
+ PhpResizer_PhpResizer::ENGINE_GRAPHIKSMAGICK - <a href="http://www.graphicsmagick.org/">GraphicsMagick</a>
 
- PhpResizer_PhpResizer::ENGINE_IMAGEMAGICK - ImageMagick
+    <b>cache</b> - управление кешированием ужатых изображений на строне сервера. Допустимые значения: true|false по умочанию true
 
- PhpResizer_PhpResizer::ENGINE_GRAPHIKSMAGICK - GraphicsMagick
+    <b>cacheDir</b> - абсолютный путь к папке где будут храниться закешированные ужатые файлы. По умолчанию /tmp/resizerCache/
 
-    <b>cache</b> - управление кешированием ужатых изображений на сервере. Допустимые значения: true|false по умочанию true
-
-    <b>cacheDir</b> - абсолютный путь к папке где будут храниться закешированные ужатые файлы. По умочанию /tmp/resizerCache/
-
-    <b>cacheBrowser</b> - управление кеширования ужатых изображений в клиентском браузере. Допустимые значения: true|false
+    <b>cacheBrowser</b> - управление кеширования ужатых изображений в браузере. Допустимые значения: true|false
 
 
 <h2>Очиста кеша</h2>

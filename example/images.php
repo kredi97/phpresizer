@@ -35,7 +35,7 @@ if (isset($_GET['type']) AND isset($options[$_GET['type']])) {
 }
 
 require '../sources/PhpResizer/Autoloader.php';
-new PhpResizer_Autoloader(); 
+new PhpResizer_Autoloader();
 
 try {
 	$resizer = new PhpResizer_PhpResizer(array (

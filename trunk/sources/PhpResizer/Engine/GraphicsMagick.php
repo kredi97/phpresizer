@@ -12,7 +12,10 @@
 /**
  *
  */
-class PhpResizer_Engine_GraphicsMagick extends PhpResizer_Engine_EngineAbstract  {
+class PhpResizer_Engine_GraphicsMagick 
+	extends PhpResizer_Engine_EngineAbstract 
+	implements PhpResizer_Engine_Interface 
+{
 
 	protected $types=array(IMAGETYPE_GIF => 'gif',
 	    IMAGETYPE_JPEG=>'jpeg',
@@ -25,7 +28,7 @@ class PhpResizer_Engine_GraphicsMagick extends PhpResizer_Engine_EngineAbstract 
     // linux command to GraphicksMagick
     private $gmPath='gm';
 
-    protected function _checkEngine () {
+    public function checkEngine () {
         $command = $this->gmPath.' version';
         
         exec($command, $stringOutput);
@@ -39,13 +42,13 @@ class PhpResizer_Engine_GraphicsMagick extends PhpResizer_Engine_EngineAbstract 
 
     public function resize  (array $params=array()) {
     	
-        $this->getParams($params);
+    	$this->checkExtOutputFormat($params);        
+        $path = $params['path'];
+        $cacheFile = $params['cacheFile'];
 
-        $size = $this->params['size'];
-        $path = $this->params['path'];
-        $cacheFile = $this->params['cacheFile'];
-
-        extract($this->calculateParams());
+        $this->calculator->setInputParams($params);
+        extract($this->calculator->calculateParams());
+        
         
              $command = $this->gmPath.' convert'
                  . ' ' . escapeshellarg($path) . ' -crop'
@@ -55,7 +58,7 @@ class PhpResizer_Engine_GraphicsMagick extends PhpResizer_Engine_EngineAbstract 
                  . ' -quality 85';
                  
                 if ($background) {
-                	// $command .= '  -background "'.$background.'" -gravity center -extent '.$width.'x'.$height;              	
+                	 $command .= '  -background "'.$background.'" -gravity center -extent '.$width.'x'.$height;              	
                 }
                 
                 $command .= ' ' . escapeshellarg($cacheFile);

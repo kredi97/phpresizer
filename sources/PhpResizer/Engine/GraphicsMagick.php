@@ -41,28 +41,34 @@ class PhpResizer_Engine_GraphicsMagick
     }
 
     public function resize  (array $params=array()) {
-    	
+
+		$calculateParams = $this->calculator->checkAndCalculateParams($params);
+        extract($calculateParams);
+        
     	$this->checkExtOutputFormat($params);        
         $path = $params['path'];
         $cacheFile = $params['cacheFile'];
-
-        $this->calculator->setInputParams($params);
-        extract($this->calculator->calculateParams());
+	
+        $oldLocale = setlocale(LC_CTYPE, null);
+        //need for use russian symbols in path escapeshellarg
+        setlocale(LC_CTYPE, "en_US.UTF-8");
         
         
-             $command = $this->gmPath.' convert'
-                 . ' ' . escapeshellarg($path) . ' -crop'
-                 . ' ' . $srcWidth . 'x' . $srcHeight . '+' . $srcX . '+' . $srcY
-                 . ' -resize ' . $dstWidth . 'x' . $dstHeight
-                 . ' -sharpen 1x10'
-                 . ' -quality 85';
-                 
-                if ($background) {
-                	 $command .= '  -background "'.$background.'" -gravity center -extent '.$width.'x'.$height;              	
-                }
-                
-                $command .= ' ' . escapeshellarg($cacheFile);
-            exec ($command);
+		$command = $this->gmPath.' convert'
+			. ' ' . escapeshellarg($path) . ' -crop'
+            . ' ' . $srcWidth . 'x' . $srcHeight . '+' . $srcX . '+' . $srcY
+            . ' -resize ' . $dstWidth . 'x' . $dstHeight
+            . ' -sharpen 1x10'
+            . ' -quality '.$quality;
+        
+		if ($background) {
+			$command .= '  -background "#'.$background.'" -gravity center -extent '.$width.'x'.$height;              	
+		}
+		
+		setlocale(LC_CTYPE, $oldLocale);
+		
+        $command .= ' ' . escapeshellarg($cacheFile);
+		exec ($command);
 
         return true;
     }

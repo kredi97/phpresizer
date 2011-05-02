@@ -1,46 +1,48 @@
 <?php
 class PhpResizer_Calculator_Calculator 
-	implements PhpResizer_Calculator_Interface 
+	implements PhpResizer_Calculator_Interface
 {
 
     /**
-     * @var array
-     */
-    protected $types = array();
-    
-    /**
      * @var int
      */
-    private $_defaultCropSize = 100;		
-	
-    /**
-     * @var int
-     */
-    private $maxHeight = 1500;
+    const DEFAULT_CROP = 100;
+    const DEFAULT_ASPECT = true;
+    const DEFAULT_QUALITY = 85;		
 
+	/**
+     * @var int
+     */
+    private $maxAvalibleWidth = 1500;
+    
     /**
      * @var int
      */
-    private $maxWidth = 1500;
+    private $maxAvalibleHeight = 1500;
     
-    public function setInputParams (array $inputParams) {
+    
+    public function checkAndCalculateParams (array $inputParams) {
         $defaultOptions=array(
             'width' => $inputParams['size'][0],
             'height' => $inputParams['size'][1],
-            'aspect' => true,
-            'crop' => 100,
+            'aspect' => self::DEFAULT_ASPECT,
+            'crop' => self::DEFAULT_CROP,
+        	'quality' => self::DEFAULT_QUALITY,
             'size' => null, //array, result working function getimagesize()
             'cacheFile' => null,
             'path' => null,
         	'background'=> null
         );
         $this->params = array_merge($defaultOptions, $inputParams);
+        
         $this->params['crop'] = (int)$this->params['crop'];
         $this->params['width'] = (int)$this->params['width'];
         $this->params['height'] = (int)$this->params['height'];
         $this->params['aspect'] = (bool)$this->params['aspect'];
 
         $this->_checkParams();
+        
+        return $this->_calculateParams();
     }
 
     /**
@@ -48,42 +50,43 @@ class PhpResizer_Calculator_Calculator
      */
     protected function _checkParams()
     {
-        if ($this->params['width'] < 1 
-            || $this->maxWidth < $this->params['width'])
+        if ($this->params['width'] < 1
+            || $this->params['width'] > $this->maxAvalibleWidth)
         {
-            $this->params['width'] = $this->maxWidth;
+            $this->params['width'] = $this->maxAvalibleWidth;
         }
 
-        if ($this->params['height'] < 1 
-            || $this->maxHeight < $this->params['height'])
+        if ($this->params['height'] < 1
+            ||  $this->params['height'] > $this->maxAvalibleHeight)
         {
-            $this->params['height'] = $this->maxHeight;
+            $this->params['height'] = $this->maxAvalibleHeight;
         }
 
-        if ($this->params['crop'] <= 0  
-            || $this->_defaultCropSize < $this->params['crop'])
+        if ($this->params['crop'] <= 0
+            || $this->params['crop'] > 100)
         {
-            $this->params['crop'] = $this->_defaultCropSize;
+            $this->params['crop'] = self::DEFAULT_CROP;
         }
 
         if (!$this->params['size']
             ||!is_array($this->params['size']))
         {
-            throw new PhpResizer_Exception_Basic(sprintf(self::EXC_BAD_PARAM,'size'));
+            throw new PhpResizer_Exception_Basic(sprintf(self::EXC_BAD_PARAM, 'size'));
         }
         
-        if($this->params['background']) {
+        if($this->params['background']) {		
         /*
-         * @todo write check param fill
+         * 
          */
-        }        
+        }
         
-
+		if($this->params['quality'] < 1 || $this->params['quality'] > 100) {		
+        	$this->params['quality'] = self::DEFAULT_QUALITY;
+        }
     }
 
-    public function calculateParams()
+    private function _calculateParams()
     {
-    	
         extract($this->params);
 
         $srcX = 0; $srcY = 0;
@@ -130,7 +133,8 @@ class PhpResizer_Calculator_Calculator
             'dstY' => 0,
             'dstWidth' => (int) $dstWidth,
             'dstHeight' => (int) $dstHeight,
-        	'background'=> $background,        	
+        	'background'=> $background,
+        	'quality' => $quality
         );
     }
 }

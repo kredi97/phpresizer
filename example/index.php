@@ -7,7 +7,7 @@
 		body {padding: 20px; background-color: #f0f0f0;}
 		img {padding: 0px; margin: 0}
 		table {width: 50%; margin: 0 auto;}
-		table td{padding: 5px; text-align: center; background-color: #fef}
+		table td{padding: 5px; text-align: center; background-color: #777}
 	</style>
 	<title>PhpResizer - example</title>
 </head>
@@ -26,11 +26,16 @@ foreach  ($directoryIterator as $item)  {
 <table>
 <?php foreach ($photos as $photo) { ?>
 
-<tr><td colspan=3><?php echo $photo; ?></td></td>
-<tr>	
-	<td><img src="<?php echo $photo?>?type=prev1" /></td>
-	<td><img src="<?php echo $photo?>?type=prev2" /></td>
-	<td><img src="<?php echo $photo?>?type=prev3" /></td>	
+<tr><td colspan=9><?php echo $photo; ?></td></td>
+<tr>
+<?php foreach (array('prev1','prev2','prev3') as $type) {?>
+	<?php foreach (array('im','gm','gd') as $engine) {?>
+		<td>
+		<?php echo $engine?>
+			<img src="<?php echo $photo?>?type=<?php echo $type?>&engine=<?php echo $engine?>" />
+		</td>
+	<?php }?>
+<?php }?>	
 </tr>
 <?php }?>
 	

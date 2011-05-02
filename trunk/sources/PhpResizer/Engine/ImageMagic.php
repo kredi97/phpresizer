@@ -42,41 +42,46 @@ class PhpResizer_Engine_ImageMagic
     }
 
     public function resize  (array $params=array()) {
-    	
+
+    	$calculateParams = $this->calculator->checkAndCalculateParams($params);
+        extract($calculateParams);
+        
     	$this->checkExtOutputFormat($params);        
         $path = $params['path'];
         $cacheFile = $params['cacheFile'];
 
-        $this->calculator->setInputParams($params);
-        extract($this->calculator->calculateParams());
-
-             $command = $this->convertPath
-                 . ' ' . escapeshellarg($path) . ' -crop'
-                 . ' ' . $srcWidth.'x'.$srcHeight . '+' . $srcX . '+' . $srcY
-                 . ' -resize ' . $dstWidth . 'x' . $dstHeight
-                 . ' -sharpen 1x10'
-                 //.' -colorspace GRAY'
-                //.' -posterize 32'
-                //.' -depth 8'
-                //.' -contrast'
-                //.' -equalize'
-                //.' -normalize'
-                //.' -gamma 1.2'
-                 . ' -quality 85'
-                 //.' -blur 2x4'
-                 //.' -unsharp 0.2x0+300+0'
-                //.' -font arial.ttf -fill white -box "#000000100" -pointsize 12 -annotate +0+10 "  '.$path.' "'
-                //.' -charcoal 2'
-                //.' -colorize 180'
-                //.' -implode 4'
-                //.' -solarize 10' ???
-                //.' -spread 5'
-                ;
-                if ($background) {
-                	 $command .= '  -background "'.$background.'" -gravity center -extent '.$width.'x'.$height;              	
-                }
-                $command .= ' ' . escapeshellarg($cacheFile);
-
+        
+        $oldLocale = setlocale(LC_CTYPE, null);
+        // need for use russian symbols in path (escapeshellarg)
+        setlocale(LC_CTYPE, "en_US.UTF-8"); 
+        
+		$command = $this->convertPath
+        	. ' ' . escapeshellarg($path) . ' -crop'
+            . ' ' . $srcWidth.'x'.$srcHeight . '+' . $srcX . '+' . $srcY
+            . ' -resize ' . $dstWidth . 'x' . $dstHeight
+            . ' -sharpen 1x10'
+            //.' -colorspace GRAY'
+            //.' -posterize 32'
+            //.' -depth 8'
+            //.' -contrast'
+            //.' -equalize'
+            //.' -normalize'
+            //.' -gamma 1.2'
+            . ' -quality '.$quality
+            //.' -blur 2x4'
+            //.' -unsharp 0.2x0+300+0'
+            //.' -font arial.ttf -fill white -box "#000000100" -pointsize 12 -annotate +0+10 "  '.$path.' "'
+            //.' -charcoal 2'
+            //.' -colorize 180'
+            //.' -implode 4'
+            //.' -solarize 10' ???
+            //.' -spread 5'
+            ;
+			if ($background) {
+				$command .= '  -background "#'.$background.'" -gravity center -extent '.$width.'x'.$height;              	
+			}
+            $command .= ' ' . escapeshellarg($cacheFile);
+			setlocale(LC_CTYPE, $oldLocale);
 			exec($command);
             return true;
     }

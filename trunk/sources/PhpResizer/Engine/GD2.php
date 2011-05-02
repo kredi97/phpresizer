@@ -32,34 +32,53 @@ class PhpResizer_Engine_GD2
     
     public function resize  (array $params=array()) {
 
+        $calculateParams = $this->calculator->checkAndCalculateParams($params);
+        extract($calculateParams);
+        
     	$this->checkExtOutputFormat($params);        
         $path = $params['path'];
         $cacheFile = $params['cacheFile'];
-
-        $this->calculator->setInputParams($params);
-        extract($this->calculator->calculateParams());
         
 		$srcImageType = $srcGetImageSize[2];
         $image = call_user_func('imagecreatefrom' . $this->types[$srcImageType], $path);        
 
-        $temp = imagecreatetruecolor ($dstWidth, $dstHeight);
+        
+        if($background){
+        	$temp = imagecreatetruecolor ($width, $height);
+        	$dstX = (int) ceil($width - $dstWidth)/2; 
+        	$dstY = (int) ceil($height - $dstHeight)/2;
+        }else{
+        	$temp = imagecreatetruecolor ($dstWidth, $dstHeight);
+        }
+        
 
         // save transparent
-		if($srcImageType == IMAGETYPE_GIF || $srcImageType == IMAGETYPE_PNG){			
+		if($srcImageType == IMAGETYPE_PNG){			
             imagealphablending($temp, false);
 			imagesavealpha($temp, true);
 			$transparent = imagecolorallocatealpha($image, 255, 255, 255, 127);
 			imagefilledrectangle($temp, $dstX, $dstY, $dstWidth, $dstHeight, $transparent);
 		}
 		
+		
 		if ($background){
-			// imagefill($temp, 0, 0, 0xFFFF00);
+			imagefill($temp, 0, 0, intval($background, 16));
 		}
 		
 		imagecopyresampled ($temp, $image, $dstX, $dstY, $srcX, $srcY, $dstWidth, $dstHeight, $srcWidth, $srcHeight);
+		imagedestroy($image);
 
-        call_user_func("image" . $this->types[$srcImageType], $temp, $cacheFile);
-        imagedestroy($image);
+    	if ($srcImageType === IMAGETYPE_JPEG) {
+        	imagejpeg($temp, $cacheFile, $quality);
+    	}elseif ($srcImageType === IMAGETYPE_PNG) {	
+    		//calculate compression for png		
+    		$pngQuality = ($quality - 100) / (100/9);
+			$pngQuality = round(abs($pngQuality));			    		
+        	imagepng($temp, $cacheFile, $pngQuality);
+    	}else{
+    		imagegif($temp, $cacheFile);    		
+    	}
+        
         imagedestroy($temp);
         return true;
     }

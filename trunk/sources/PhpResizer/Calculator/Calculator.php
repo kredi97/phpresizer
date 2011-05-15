@@ -3,12 +3,11 @@ class PhpResizer_Calculator_Calculator
 	implements PhpResizer_Calculator_Interface
 {
 
-    /**
-     * @var int
-     */
-    const DEFAULT_CROP = 100;
+    const DEFAULT_CROP = 100; // 0..100
     const DEFAULT_ASPECT = true;
-    const DEFAULT_QUALITY = 85;		
+    const DEFAULT_QUALITY = 85;	// 0..100
+    const DEFAULT_PNGCOMPRESS = 9;	//0..9
+    const DEFAULT_ZOOM_SMALL_IAMGE = true; // bool
 
 	/**
      * @var int
@@ -28,10 +27,12 @@ class PhpResizer_Calculator_Calculator
             'aspect' => self::DEFAULT_ASPECT,
             'crop' => self::DEFAULT_CROP,
         	'quality' => self::DEFAULT_QUALITY,
+        	'pngCompress'=> self::DEFAULT_PNGCOMPRESS,
             'size' => null, //array, result working function getimagesize()
             'cacheFile' => null,
             'path' => null,
-        	'background'=> null
+        	'background'=> null,
+        	'zoomSmallImage'=>self::DEFAULT_ZOOM_SMALL_IAMGE
         );
         $this->params = array_merge($defaultOptions, $inputParams);
         
@@ -39,9 +40,10 @@ class PhpResizer_Calculator_Calculator
         $this->params['width'] = (int)$this->params['width'];
         $this->params['height'] = (int)$this->params['height'];
         $this->params['aspect'] = (bool)$this->params['aspect'];
+        $this->params['zoomSmallImage'] = (bool)$this->params['zoomSmallImage'];
 
         $this->_checkParams();
-        
+
         return $this->_calculateParams();
     }
 
@@ -74,42 +76,50 @@ class PhpResizer_Calculator_Calculator
             throw new PhpResizer_Exception_Basic(sprintf(self::EXC_BAD_PARAM, 'size'));
         }
         
-        if($this->params['background']) {		
-        /*
-         * 
-         */
+        if($this->params['background'] && !preg_match('/[0-9a-f]{6}/ui', $this->params['background'])) {
+			$this->params['background'] = null;
         }
         
 		if($this->params['quality'] < 1 || $this->params['quality'] > 100) {		
         	$this->params['quality'] = self::DEFAULT_QUALITY;
         }
+         
+        if($this->params['pngCompress'] < 1 || $this->params['pngCompress'] > 9) {
+        	$this->params['pngComperss'] = self::DEFAULT_PNGCOMPRESS;
+        }
     }
 
+    /**
+     * 
+     *  @toda needRefacoring
+     *  check paramName;
+     *  
+     */
     private function _calculateParams()
     {
         extract($this->params);
-
+        $sizeCopy = $size;
         $srcX = 0; $srcY = 0;
 
         if ($aspect) {
-            if (($size[1]/$height) > ($size[0]/$width)) {
-                $dstWidth = ceil(($size[0]/$size[1]) * $height);
+            if (($sizeCopy[1]/$height) > ($sizeCopy[0]/$width)) {
+                $dstWidth = ceil(($sizeCopy[0]/$sizeCopy[1]) * $height);
                 $dstHeight = $height;
             } else {
-                $dstHeight = ceil($width / ($size[0]/$size[1]));
+                $dstHeight = ceil($width / ($sizeCopy[0]/$sizeCopy[1]));
                 $dstWidth = $width;
             }
         } else {
 			$dstHeight = $height;
 			$dstWidth = $width;
-			if (($height/$width) <= ($size[1]/$size[0])) {
-				$temp=$height*($size[0]/$width);
-				$srcY=ceil(($size[1]-$temp)/2);
-                $size[1]=ceil($temp);
+			if (($height/$width) <= ($sizeCopy[1]/$sizeCopy[0])) {
+				$temp=$height*($sizeCopy[0]/$width);
+				$srcY=ceil(($sizeCopy[1]-$temp)/2);
+                $sizeCopy[1]=ceil($temp);
 			} else {
-				$temp=$width*($size[1]/$height);
-				$srcX=ceil(($size[0]-$temp)/2);
-                $size[0]=ceil($temp);
+				$temp=$width*($sizeCopy[1]/$height);
+				$srcX=ceil(($sizeCopy[0]-$temp)/2);
+                $sizeCopy[0]=ceil($temp);
            }
         }
 
@@ -117,24 +127,40 @@ class PhpResizer_Calculator_Calculator
             $crop = $this->params['crop'];
             $srcX += ceil((100-$crop)/200*$size[0]);
             $srcY += ceil((100-$crop)/200*$size[1]);
-            $size[0] = ceil($size[0]*$crop/100);
-            $size[1] = ceil($size[1]*$crop/100);
+            $sizeCopy[0] = ceil($sizeCopy[0]*$crop/100);
+            $sizeCopy[1] = ceil($sizeCopy[1]*$crop/100);
         }
 
-        return array(
+        $outputData = array(
         	'srcGetImageSize'=> $size,
+        	'zoomSmallImage'=> $zoomSmallImage,
         	'width' => (int) $width,
         	'height' => (int) $height,
             'srcX' => (int) $srcX,
             'srcY' => (int) $srcY,
-            'srcWidth' => (int) $size[0],
-            'srcHeight' => (int) $size[1],
+            'srcWidth' => (int) $sizeCopy[0],
+            'srcHeight' => (int) $sizeCopy[1],
             'dstX' => 0,
             'dstY' => 0,
             'dstWidth' => (int) $dstWidth,
             'dstHeight' => (int) $dstHeight,
         	'background'=> $background,
-        	'quality' => $quality
+        	'quality' => (int)$quality,
+        	'pngCompress' => (int)$pngCompress
         );
+        
+	
+        if(!$outputData['zoomSmallImage'] && 
+        ($outputData['dstWidth'] >= $outputData['srcGetImageSize'][0] 
+        || $outputData['dstHeight'] >= $outputData['srcGetImageSize'][1])){      
+        	
+        	$outputData['srcX'] = 0;
+        	$outputData['srcY'] = 0;
+        	$outputData['dstWidth'] = $outputData['srcWidth'] =  $outputData['width'] = $outputData['srcGetImageSize'][0];
+        	$outputData['dstHeight'] = $outputData['srcHeight'] = $outputData['height'] = $outputData['srcGetImageSize'][1];
+        	  
+        }        
+ 
+        return $outputData;
     }
 }

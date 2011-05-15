@@ -34,7 +34,7 @@ class PhpResizer_Engine_ImageMagic
        
         exec($command, $stringOutput);
 
-        if (false === strpos($stringOutput[0],'ImageMagick')) {
+        if (!isset($stringOutput[0]) || false === stripos($stringOutput[0],'ImageMagick')) {
             throw new PhpResizer_Exception_Basic(
             	sprintf(self::EXC_ENGINE_IS_NOT_AVALIBLE,
             	PhpResizer_PhpResizer::ENGINE_IMAGEMAGICK));
@@ -43,20 +43,22 @@ class PhpResizer_Engine_ImageMagic
 
     public function resize  (array $params=array()) {
 
-    	$calculateParams = $this->calculator->checkAndCalculateParams($params);
-        extract($calculateParams);
-        
-    	$this->checkExtOutputFormat($params);        
-        $path = $params['path'];
-        $cacheFile = $params['cacheFile'];
+    	$calculateParams = $this->calculator->checkAndCalculateParams($params);    
+    	extract($calculateParams);
 
+    	$this->checkExtOutputFormat($params);
         
         $oldLocale = setlocale(LC_CTYPE, null);
         // need for use russian symbols in path (escapeshellarg)
         setlocale(LC_CTYPE, "en_US.UTF-8"); 
         
+        
+        if ($params['size'][2] === IMAGETYPE_PNG) {
+        	$quality = $pngCompress*10;
+        }
+        
 		$command = $this->convertPath
-        	. ' ' . escapeshellarg($path) . ' -crop'
+        	. ' ' . escapeshellarg($params['path']) . ' -crop'
             . ' ' . $srcWidth.'x'.$srcHeight . '+' . $srcX . '+' . $srcY
             . ' -resize ' . $dstWidth . 'x' . $dstHeight
             . ' -sharpen 1x10'
@@ -80,7 +82,7 @@ class PhpResizer_Engine_ImageMagic
 			if ($background) {
 				$command .= '  -background "#'.$background.'" -gravity center -extent '.$width.'x'.$height;              	
 			}
-            $command .= ' ' . escapeshellarg($cacheFile);
+            $command .= ' ' . escapeshellarg($params['cacheFile']);
 			setlocale(LC_CTYPE, $oldLocale);
 			exec($command);
             return true;

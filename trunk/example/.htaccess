@@ -1,4 +1,4 @@
 <IfModule mod_rewrite.c>
    RewriteEngine on
-   RewriteRule    (.*\.)(jpg|jpeg|bmp|gif|tiff|png|tif) images.php?file=$1$2 [L,NC,QSA]
+   RewriteRule    (.*\.)(jpg|jpeg|bmp|gif|png|tif) images.php?file=$1$2 [L,NC,QSA]
 </IfModule>

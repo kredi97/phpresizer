@@ -14,7 +14,9 @@
 <body>
 
 <?php 
-$directoryIterator = new DirectoryIterator (dirname(__FILE__).'/../tests/PhpResizer/files');
+$directoryIterator = new DirectoryIterator (__DIR__.'/../tests/PhpResizer/files');
+//$directoryIterator = new DirectoryIterator (__DIR__.'/test');
+
 $photos=array();
 foreach  ($directoryIterator as $item)  {
 	if ($item->isFile())  {
@@ -23,21 +25,39 @@ foreach  ($directoryIterator as $item)  {
 }
 ?>
 
+
+<?php 
+/*
+ * render many photos from  ./test
+ * 
+ 
+$i=0;
+foreach ($photos as $photo) { 
+	$i++;
+	$host = ($i%2===0) ? 'http://b.resizer.loc/' : 'http://a.resizer.loc/';
+	$host = 'http://b.resizer.loc/';
+	?>
+	<img src="<?php echo $host.$photo?>?type=prev1&engine=gd" />
+<?php } */
+ ?>
+
 <table>
-<?php foreach ($photos as $photo) { ?>
+<?php 
+
+foreach ($photos as $photo) { ?>
 
 <tr><td colspan=9><?php echo $photo; ?></td></td>
 <tr>
-<?php foreach (array('prev1','prev2','prev3') as $type) {?>
+<?php  foreach (array('prev1','prev2','prev3') as $type) {?>
 	<?php foreach (array('im','gm','gd') as $engine) {?>
 		<td>
-		<?php echo $engine?>
+		<?php echo $engine?><br/>
 			<img src="<?php echo $photo?>?type=<?php echo $type?>&engine=<?php echo $engine?>" />
 		</td>
 	<?php }?>
-<?php }?>	
+<?php } ?>	
 </tr>
-<?php }?>
-	
+<?php } ?>
+</table>
 </body>
 </html>

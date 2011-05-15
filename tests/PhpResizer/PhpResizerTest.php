@@ -75,8 +75,7 @@ class PhpResizer_PhpResizerTest extends PHPUnit_Framework_TestCase
 		return $testPhoto;
     }
 
-    
-    
+
     /**
      * @dataProvider providerFiles
      * @knownException PhpResizer_Exception_IncorrectExtension
@@ -110,7 +109,7 @@ class PhpResizer_PhpResizerTest extends PHPUnit_Framework_TestCase
             	return;
             }catch(PhpResizer_Exception_Basic $e){
             	$this->assertTrue($isBadFile
-                , 'Плохой файл не вызвал исключение (движок:'.$engine.') (файл:'.$filename.')');
+                , 'испорченный файл не вызвал исключение (движок:'.$engine.') (файл:'.$filename.')');
                 return; 
             }
            
@@ -119,9 +118,10 @@ class PhpResizer_PhpResizerTest extends PHPUnit_Framework_TestCase
                 
             list($width, $height) = getimagesize($cacheFile);
                             
-            $this->assertEquals($width, $options['width']
+            $this->assertTrue($options['width'] - 1 <= $width && $width <= $options['width'] + 1
                 , 'ширина изображения (движок:'.$engine.') (файл:'.$cacheFile.')');
-            $this->assertTrue($options['height'] - 1 <= $height && $height <= $options['height'] + 1
+            
+			$this->assertTrue($options['height'] - 1 <= $height && $height <= $options['height'] + 1
                 ,'высота изображения (движок:'.$engine.') (файл:'.$cacheFile.')');
         }
     }

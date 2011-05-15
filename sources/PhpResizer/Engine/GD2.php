@@ -33,9 +33,10 @@ class PhpResizer_Engine_GD2
     public function resize  (array $params=array()) {
 
         $calculateParams = $this->calculator->checkAndCalculateParams($params);
-        extract($calculateParams);
+        extract($calculateParams);        
         
-    	$this->checkExtOutputFormat($params);        
+    	$this->checkExtOutputFormat($params);    
+    	    
         $path = $params['path'];
         $cacheFile = $params['cacheFile'];
         
@@ -50,10 +51,9 @@ class PhpResizer_Engine_GD2
         }else{
         	$temp = imagecreatetruecolor ($dstWidth, $dstHeight);
         }
-        
 
         // save transparent
-		if($srcImageType == IMAGETYPE_PNG){			
+		if($srcImageType == IMAGETYPE_PNG && !$background){			
             imagealphablending($temp, false);
 			imagesavealpha($temp, true);
 			$transparent = imagecolorallocatealpha($image, 255, 255, 255, 127);
@@ -70,11 +70,8 @@ class PhpResizer_Engine_GD2
 
     	if ($srcImageType === IMAGETYPE_JPEG) {
         	imagejpeg($temp, $cacheFile, $quality);
-    	}elseif ($srcImageType === IMAGETYPE_PNG) {	
-    		//calculate compression for png		
-    		$pngQuality = ($quality - 100) / (100/9);
-			$pngQuality = round(abs($pngQuality));			    		
-        	imagepng($temp, $cacheFile, $pngQuality);
+    	}elseif ($srcImageType === IMAGETYPE_PNG) {		    		
+        	imagepng($temp, $cacheFile, $pngCompress);
     	}else{
     		imagegif($temp, $cacheFile);    		
     	}

@@ -8,25 +8,27 @@ if (isset($_GET['file'])) {
 
 $options = array (
 	'prev1'=>array(
-		'width'=>50,
-		'height'=>50,
+		'width'=>70,
+		'height'=>70,
 		'aspect'=>false,
 		'crop'=>90,
-		'quality'=>100
+		'quality'=>85
 	),
 	'prev2'=>array(
 		'width'=>130,
 		'height'=>120,
 		'aspect'=>true,
 		'crop'=>100,
-		'background'=>'fF0000'
+		'background'=>'fFf0a0'
 	),
 	'prev3'=>array(
 		'width'=>150,
 		'height'=>150,
 		'aspect'=>true,
-		'quality'=>25,
+		'quality'=>85,
 		'crop'=>60,
+		'zoomSmallImage'=>false,
+		'pngCompress' => 9
 	),
 );
 
@@ -52,12 +54,14 @@ if (isset($_GET['engine']) AND isset($engines[$_GET['engine']])) {
 try {
 	$resizer = new PhpResizer_PhpResizer(array (
 		'engine'=>$engine,
-		'cacheDir'=>dirname(__FILE__).'/cache/',
+		'cacheDir'=>__DIR__.'/cache/',
+		'tmpDir'=>__DIR__.'/cache/',
 		'cache'=>false,
 		'cacheBrowser'=>false,
 		)
-	);	
-	$resizer->resize(dirname(__FILE__).'/../tests/PhpResizer/files/'.$file, $opt);
+	);
+	$resizer->resize(__DIR__.'/../tests/PhpResizer/files/'.$file, $opt);
+	//$resizer->resize(__DIR__.'/test/'.$file, $opt);
 }catch(Exception $e) {	
 	echo $e->getMessage();
 }

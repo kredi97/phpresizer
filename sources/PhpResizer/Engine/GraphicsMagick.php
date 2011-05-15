@@ -33,7 +33,7 @@ class PhpResizer_Engine_GraphicsMagick
         
         exec($command, $stringOutput);
 
-        if (false === strpos($stringOutput[0],'GraphicsMagick')) {
+        if (!isset($stringOutput[0]) || false === stripos($stringOutput[0],'GraphicsMagick')) {
 			throw new PhpResizer_Exception_Basic(
             	sprintf(self::EXC_ENGINE_IS_NOT_AVALIBLE,
             	PhpResizer_PhpResizer::ENGINE_GRAPHIKSMAGICK));
@@ -46,16 +46,17 @@ class PhpResizer_Engine_GraphicsMagick
         extract($calculateParams);
         
     	$this->checkExtOutputFormat($params);        
-        $path = $params['path'];
-        $cacheFile = $params['cacheFile'];
 	
         $oldLocale = setlocale(LC_CTYPE, null);
         //need for use russian symbols in path escapeshellarg
         setlocale(LC_CTYPE, "en_US.UTF-8");
         
+        if ($params['size'][2] === IMAGETYPE_PNG) {
+        	$quality = $pngCompress;
+        }
         
 		$command = $this->gmPath.' convert'
-			. ' ' . escapeshellarg($path) . ' -crop'
+			. ' ' . escapeshellarg($params['path']) . ' -crop'
             . ' ' . $srcWidth . 'x' . $srcHeight . '+' . $srcX . '+' . $srcY
             . ' -resize ' . $dstWidth . 'x' . $dstHeight
             . ' -sharpen 1x10'
@@ -67,7 +68,7 @@ class PhpResizer_Engine_GraphicsMagick
 		
 		setlocale(LC_CTYPE, $oldLocale);
 		
-        $command .= ' ' . escapeshellarg($cacheFile);
+        $command .= ' ' . escapeshellarg($params['cacheFile']);
 		exec ($command);
 
         return true;

@@ -29,13 +29,13 @@ class PhpResizer_PhpResizer {
      *
      * @var int
      */
-    const DEFAULT_CACHE_TTL = 10080;
-
-    /**
-     * @var bool
-     */
-    protected $_returnOnlyPath = false;
-
+    const DEFAULT_CACHE_TTL = 10080; // 10080 minutes = 1 week
+    const DEFAULT_RETURN_ONLY_PATH = false;
+    const DEFAULT_CACHE = true;
+    const DEFAULT_CACHE_BROWSER = true;
+    const DEFAULT_CACHR_DIR  = '/tmp/resizerCache/';
+	const DEFAULT_TMP_DIR  = '/tmp/';
+	
     /**
      * @var bool
      */
@@ -73,10 +73,10 @@ class PhpResizer_PhpResizer {
     {
     	$defaultOptions = array (
             'engine' => self::ENGINE_GD2,
-            'cache' => true,
-            'cacheBrowser' => true,
-            'cacheDir' => '/tmp/resizerCache/',
-            'tmpDir' => '/tmp/');
+            'cache' => self::DEFAULT_CACHE,
+            'cacheBrowser' => self::DEFAULT_CACHE_BROWSER,
+            'cacheDir' => self::DEFAULT_CACHR_DIR,
+            'tmpDir' => self::DEFAULT_TMP_DIR);
     	
         $config = array_merge($defaultOptions, $inputOptions);
 
@@ -90,6 +90,7 @@ class PhpResizer_PhpResizer {
 
         $this->_engine = $this->_createEngine($config['engine']);
     }
+    
 	/**
      * @throws PhpResizer_Exception_Basic
      */
@@ -130,7 +131,9 @@ class PhpResizer_PhpResizer {
      * @param array $options
      * @throws PhpResizer_Exception_Basic
      */
-    public function resize($filename, array $options = array(),$returnOnlyPath = false)
+    public function resize($filename, 
+    						array $options = array(),
+    						$returnOnlyPath = self::DEFAULT_RETURN_ONLY_PATH)
     {
     	$this->_options = $options;
     	$this->_returnOnlyPath = (bool) $returnOnlyPath;
@@ -161,6 +164,7 @@ class PhpResizer_PhpResizer {
             $this->_return404();
         }
 
+		chmod($this->_options['cacheFile'], 0777);
 		return $this->_returnImageOrPath($this->_options['cacheFile']);
     }
 
@@ -216,8 +220,10 @@ class PhpResizer_PhpResizer {
         }
     }
     
-    public static function getExtension($filename) {     	
-    	return strtolower(array_pop(explode('.',$filename)));
+    public static function getExtension($filename) {
+    	$filenameArr = explode('.',$filename);
+    	$ext = array_pop($filenameArr);
+    	return strtolower($ext);
     }
 
     /**
@@ -232,9 +238,10 @@ class PhpResizer_PhpResizer {
             . '/' . substr($hash, 1, 1) . '/' . substr($hash, 2) . '.'
             . $this->getExtensionOutputFile($path);
 
-
         if (!is_dir(dirname($cacheFilePath))){
+        	$oldUmask = umask(0);
             mkdir(dirname($cacheFilePath),0777,true);
+            umask($oldUmask);            
         }
 
         return $cacheFilePath;
@@ -303,7 +310,7 @@ class PhpResizer_PhpResizer {
     }
 
     /**
-     * @param int $ttl
+     * @param int $ttl in minutes
      * @return array
      */
     public function clearCache($ttl = self::DEFAULT_CACHE_TTL)

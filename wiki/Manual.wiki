@@ -23,7 +23,6 @@ images.php
 
 <code>
 <?php
-
 $options = array (
     "avatar"=>array(
         "width"=>100, // желаемая ширина аватарки
@@ -35,10 +34,8 @@ $options = array (
     )
 );
 
-/*
-На этом этапе, при необходимости, проверяем разрешено ли пользователю 
-просматривать изображение. В данном примере это пропущено.   
-*/
+/* На этом этапе, при необходимости, проверяем разрешено ли пользователю 
+просматривать изображение. В данном примере это пропущено. */
 
 require "/PhpResizer/Autoloader.php";
 new PhpResizer_Autoloader(); 
@@ -49,6 +46,7 @@ try {
 		"cache"=>true,
 		"cacheDir"=>__DIR__."/cache/",
 		"cacheBrowser"=>true,
+                'tmpDir'=>__DIR__.'/cache/',
 		)
 	);
 	$resizer->resize(__DIR__."/".$file, $opt, false);

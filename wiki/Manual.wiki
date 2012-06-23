@@ -14,9 +14,9 @@
 </code>
 
 Тепперь запрос:
-http://example.com/testimage.jpg?type=avatar
+<code>http://example.com/testimage.jpg?type=avatar</code>
 будет обрабатываться как:
-http://example.com/images.php?file=testimage.jpg&type=avatar
+<code>http://example.com/images.php?file=testimage.jpg&type=avatar</code>
 
 <h4>Определяем логику обработки изображения</h4>
 images.php
@@ -35,12 +35,10 @@ $options = array (
     )
 );
 
-
 /*
 На этом этапе, при необходимости, проверяем разрешено ли пользователю 
 просматривать изображение. В данном примере это пропущено.   
 */
-
 
 require "/PhpResizer/Autoloader.php";
 new PhpResizer_Autoloader(); 
@@ -62,7 +60,7 @@ try {
 
 <h4>Параметры передаваемые в конструктор new PhpResizer_PhpResizer()</h4>
 
-    <b> engine</b> - движок используемый для ужатия. Доступные значения:
+<b> engine</b> - движок используемый для ужатия. Доступные значения:
 
 <code>PhpResizer_PhpResizer::ENGINE_GD2</code> (выбрано по умолчанию)- GD (Graphics Draw) library
 <code>PhpResizer_PhpResizer::ENGINE_IMAGEMAGICK </code>- <a href="http://www.imagemagick.org/script/index.php">ImageMagick</a>

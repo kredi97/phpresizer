@@ -6,8 +6,11 @@
 
 .htaccess 
 <code>
-ываыва
-ываыав
+<IfModule mod_rewrite.c>
+   RewriteEngine on
+   RewriteRule    (.*\.)(jpg|jpeg|bmp|gif|png|tiff|tif) images.php?file=$1$2 [L,NC,QSA]
+</IfModule>
+
 </code>
 
 Тепперь запрос:

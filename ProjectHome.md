@@ -1,0 +1,1 @@
+Generating thumbnail. Supported by the graphics engines: ImageMagick, GraphicsMagick, GD. Результат работы кэшируется в файлах. Resized images are stored in files.
